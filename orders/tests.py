@@ -186,3 +186,81 @@ class CheckoutTests(ViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('delivery_date', response.context['form'].errors)
         self.assertEqual(Order.objects.count(), 0)
+
+
+class RegisterAndOrderTests(ViewTestCase):
+    """Mijoz ro'yxatdan o'tadi va tort buyurtma qiladi — butun yo'l."""
+
+    def setUp(self):
+        super().setUp()
+        self.cake = self.make_cake(name='Feruza to\'y torti',
+                                   price=Decimal('2500000'))
+
+    def register(self):
+        return self.client.post(reverse('clients:register'), {
+            'username': 'alisher01',
+            'full_name': 'Alisher Karimov',
+            'phone': '+998 90 123 45 67',
+            'email': 'alisher@example.uz',
+            'telegram': '@alisher',
+            'password1': 'YangiParol!2026',
+            'password2': 'YangiParol!2026',
+        })
+
+    def test_register_logs_user_in(self):
+        response = self.register()
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('_auth_user_id', self.client.session)
+        self.assertTrue(Client.objects.filter(phone='+998901234567').exists())
+
+    def test_registered_user_can_order_cake(self):
+        self.register()
+
+        self.client.post(reverse('orders:cart_add', args=[self.cake.pk]),
+                         {'quantity': 2})
+        response = self.client.post(reverse('orders:checkout'), {
+            'name': 'Alisher Karimov',
+            'phone': '+998901234567',
+            'telegram': '@alisher',
+            'delivery_address': "Toshkent, Yunusobod tumani, Navoiy 15",
+            'delivery_date': '2030-01-01',
+            'delivery_time': '18:00',
+            'payment_method': Order.PaymentMethod.CASH,
+        })
+
+        order = Order.objects.get()
+        # Ro'yxatdan o'tgan mijoz — buyurtma sahifasiga olib boriladi.
+        self.assertRedirects(response, reverse('orders:detail', args=[order.pk]))
+        self.assertEqual(order.client.phone, '+998901234567')
+        self.assertEqual(order.items_count, 2)
+        self.assertEqual(order.subtotal, Decimal('5000000'))
+
+    def test_order_appears_in_history(self):
+        self.register()
+        self.client.post(reverse('orders:cart_add', args=[self.cake.pk]),
+                         {'quantity': 1})
+        self.client.post(reverse('orders:checkout'), {
+            'name': 'Alisher Karimov',
+            'phone': '+998901234567',
+            'delivery_address': "Toshkent, Yunusobod tumani, Navoiy 15",
+            'delivery_date': '2030-01-01',
+            'payment_method': Order.PaymentMethod.CASH,
+        })
+
+        for url in (reverse('orders:my'),
+                    reverse('clients:profile_orders')):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.context['orders'].count(), 1)
+
+    def test_guest_cart_is_kept_after_register(self):
+        """Ro'yxatdan o'tishdan oldin solingan savat yo'qolmasin."""
+        self.client.post(reverse('orders:cart_add', args=[self.cake.pk]),
+                         {'quantity': 3})
+        expected = {str(self.cake.pk): {'qty': 3, 'options': [], 'comment': ''}}
+        self.assertEqual(self.client.session['cart'], expected)
+
+        self.register()
+
+        self.assertEqual(self.client.session['cart'], expected)
