@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ cake.name }} — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="bg-body-tertiary py-3">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Bosh sahifa</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cakes:list' %}">Tortlar</a></li>
+        <li class="breadcrumb-item">
+          <a href="{% url 'cakes:category' cake.category.slug %}">{{ cake.category.name }}</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">{{ cake.name|truncatechars:30 }}</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5">
+      <!-- Rasmlar -->
+      <div class="col-lg-6">
+        <div id="cakeGallery" class="carousel slide border rounded overflow-hidden bg-body-secondary">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              {% if cake.main_image %}
+              <img src="{{ cake.main_image.url }}" class="d-block w-100 detail-img" alt="{{ cake.name }}"
+                fetchpriority="high" decoding="async">
+              {% else %}
+              <div class="detail-img d-flex align-items-center justify-content-center">
+                <i class="bi bi-cake2 fs-1 text-muted"></i>
+              </div>
+              {% endif %}
+            </div>
+            {% for img in images %}
+            <div class="carousel-item">
+              <img src="{{ img.image.url }}" class="d-block w-100 detail-img" alt="{{ cake.name }} {{ forloop.counter }}"
+                loading="lazy" decoding="async">
+            </div>
+            {% endfor %}
+          </div>
+
+          {% if images %}
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#cakeGallery" data-bs-slide-to="0"
+              class="active" aria-current="true" aria-label="Rasm 1"></button>
+            {% for img in images %}
+            <button type="button" data-bs-target="#cakeGallery" data-bs-slide-to="{{ forloop.counter }}"
+              aria-label="Rasm {{ forloop.counter|add:1 }}"></button>
+            {% endfor %}
+          </div>
+
+          <button class="carousel-control-prev" type="button" data-bs-target="#cakeGallery" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Oldingi</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#cakeGallery" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Keyingi</span>
+          </button>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Ma'lumotlar -->
+      <div class="col-lg-6">
+        <small class="text-uppercase text-muted">{{ cake.category.name }}</small>
+        <h1 class="mb-2">{{ cake.name }}</h1>
+
+        <div class="mb-3">
+          {% if reviews_count %}
+          <a href="#reviewsBlock" class="text-warning text-decoration-none me-2">
+            {% for i in "12345"|make_list %}
+            {% if forloop.counter <= avg_rating %}
+            <i class="bi bi-star-fill"></i>
+            {% else %}
+            <i class="bi bi-star"></i>
+            {% endif %}
+            {% endfor %}
+            <span class="text-muted ms-1">({{ reviews_count }} ta sharh)</span>
+          </a>
+          {% endif %}
+        </div>
+
+        <div class="d-flex align-items-baseline gap-3 mb-3">
+          <span class="fs-2 fw-bold text-danger">{{ cake.price|floatformat:"-2" }} so'm</span>
+          {% if cake.has_discount %}
+          <del class="text-muted fs-5">{{ cake.old_price|floatformat:"-2" }}</del>
+          <span class="badge bg-danger">-{{ cake.discount_percent }}%</span>
+          {% endif %}
+        </div>
+
+        {% if cake.weight_gram %}
+        <p class="text-muted"><i class="bi bi-weight"></i> Og'irligi: {{ cake.weight_gram }} gramm</p>
+        {% endif %}
+
+        {% if not cake.is_available %}
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle"></i> Bu tort hozircha mavjud emas.
+        </div>
+        {% endif %}
+
+        {% if cake.is_preorder %}
+        <div class="alert alert-info">
+          <i class="bi bi-clock-history"></i>
+          Faqat oldindan buyurtma qabul qilinadi.
+          {% if cake.min_order_days %}Kamida {{ cake.min_order_days }} kun oldin buyurtma berish kerak.
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <h6 class="mt-4">Tavsifi</h6>
+        <p class="text-muted">{{ cake.description|linebreaksbr }}</p>
+
+        {% if allergens %}
+        <div class="mb-3">
+          <strong class="d-block mb-1">Allergenlar:</strong>
+          {% for al in allergens %}
+          <span class="badge bg-light text-dark border">{{ al.name }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'orders:cart_add' cake.pk %}" class="mt-4">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+
+          {% if option_groups %}
+          <div class="mb-3">
+            <strong class="d-block mb-2">Variantlar</strong>
+            {% for group, items in option_groups.items %}
+            <div class="mb-2">
+              <small class="text-muted d-block">{{ group }}</small>
+              {% for opt in items %}
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="options" value="{{ opt.pk }}"
+                  id="opt{{ opt.pk }}">
+                <label class="form-check-label" for="opt{{ opt.pk }}">
+                  {{ opt.name }}
+                  {% if opt.price_delta %}
+                  <span class="text-danger">+{{ opt.price_delta|floatformat:"-2" }}</span>
+                  {% endif %}
+                </label>
+              </div>
+              {% endfor %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="row g-2 align-items-end">
+            <div class="col-auto" style="width: 110px;">
+              <label for="quantity" class="form-label">Soni</label>
+              <input type="number" name="quantity" id="quantity" value="1" min="1" max="99" class="form-control">
+            </div>
+            <div class="col">
+              {% if cake.is_available %}
+              <button type="submit" class="btn btn-danger btn-lg w-100">
+                <i class="bi bi-basket"></i> Savatga qo'shish
+              </button>
+              {% else %}
+              <button type="button" class="btn btn-secondary btn-lg w-100" disabled>Mavjud emas</button>
+              {% endif %}
+            </div>
+          </div>
+
+          <small class="text-muted d-block mt-2">
+            Eng erta yetkazish: <strong>{{ min_date|date:"d.m.Y" }}</strong>
+          </small>
+        </form>
+      </div>
+    </div>
+
+    <!-- Sharhlar -->
+    <div class="row mt-5 pt-3" id="reviewsBlock">
+      <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="mb-0">Sharhlar {% if reviews_count %}<span class="text-muted">({{ reviews_count }})</span>{% endif %}</h3>
+          <a href="{% url 'reviews:add' cake.slug %}" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-pencil-square"></i> Sharh qoldirish
+          </a>
+        </div>
+
+        {% if reviews %}
+        {% for review in reviews %}
+        <div class="summary-card mb-3">
+          <div class="p-4">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="d-flex align-items-center gap-3">
+                <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center fw-bold review-avatar">
+                  {{ review.author_name|first|upper }}
+                </div>
+                <div>
+                  <strong class="d-block">{{ review.author_name }}</strong>
+                  <div class="text-warning small">
+                    {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= review.rating %}
+                    <i class="bi bi-star-fill"></i>
+                    {% else %}
+                    <i class="bi bi-star"></i>
+                    {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+              <small class="text-muted">{{ review.created_at|date:"d.m.Y" }}</small>
+            </div>
+            <p class="mb-0 mt-3 text-muted">{{ review.text|linebreaksbr }}</p>
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="alert alert-light border">
+          Hali sharh yo'q. Birinchi bo'lib siz sharh qoldiring!
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- O'xshash tortlar -->
+    {% if related %}
+    <div class="mt-5 pt-3">
+      <h3 class="mb-4">{{ cake.category.name }} — boshqalar</h3>
+      <div class="row g-4">
+        {% for item in related %}
+        <div class="col-6 col-md-3">
+          {% include 'includes/cake_card.html' with cake=item %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

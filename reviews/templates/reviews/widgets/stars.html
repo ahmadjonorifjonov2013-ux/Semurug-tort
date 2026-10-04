@@ -1,0 +1,15 @@
+{% comment %}
+Baho uchun yulduzchalar. Django radio_select shabloni o'rniga ishlatiladi:
+input yashiriladi (CSS), yonida bosiladigan ★ belgisi chiqadi.
+Ekran o'quvchilar uchun har bir yulduzning yonida yashirin matn bor.
+{% endcomment %}
+<div class="star-rating" id="{{ widget.attrs.id }}" role="radiogroup" aria-label="Baho">
+  {% for group, options, index in widget.optgroups %}{% for option in options %}
+    <input type="radio" name="{{ widget.name }}" value="{{ option.value|stringformat:'s' }}"
+           {% include "django/forms/widgets/attrs.html" with widget=option %}>
+    <label for="{{ option.attrs.id }}" title="{{ option.label }}">
+      <span aria-hidden="true">★</span>
+      <span class="visually-hidden">{{ option.label }}</span>
+    </label>
+  {% endfor %}{% endfor %}
+</div>

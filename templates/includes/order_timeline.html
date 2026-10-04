@@ -1,0 +1,10 @@
+{% if order.status == 'cancelled' %}
+<div class="alert alert-secondary d-flex align-items-center gap-2 mb-3">
+  <i class="bi bi-x-circle"></i> Bu buyurtma bekor qilingan.
+</div>
+{% endif %}
+<div class="order-timeline mb-2">
+  {% for step in order.timeline %}
+  <div class="step {{ step.state }}">{{ step.label }}</div>
+  {% endfor %}
+</div>

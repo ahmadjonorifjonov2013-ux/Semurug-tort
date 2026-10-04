@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Savollar va javoblar — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h1>Ko'p so'raladigan savollar</h1>
+      <p class="text-muted">Javobini topolmadingizmi? <a href="{% url 'core:contact' %}">Bizga yozing</a>.</p>
+    </div>
+
+    {% if faqs %}
+    <div class="accordion mx-auto" id="faqAccordion" style="max-width: 900px;">
+      {% for faq in faqs %}
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button"
+            data-bs-toggle="collapse" data-bs-target="#faq{{ forloop.counter }}"
+            aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+            aria-controls="faq{{ forloop.counter }}">
+            {{ faq.question }}
+          </button>
+        </h2>
+        <div id="faq{{ forloop.counter }}"
+          class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+          data-bs-parent="#faqAccordion">
+          <div class="accordion-body">{{ faq.answer|linebreaksbr }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-light border text-center py-5">
+      Hozircha savollar qo'shilmagan.
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-5">
+      <p class="text-muted">Yana savolingiz bormi?</p>
+      <a href="{% url 'core:contact' %}" class="btn btn-danger">
+        <i class="bi bi-chat-dots"></i> Savol yuborish
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

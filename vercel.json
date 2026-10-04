@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "django",
+  "functions": {
+    "config/wsgi.py": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "excludeFiles": "{venv/**,.venv/**,__pycache__/**,**/*.pyc,**/*.pyo,staticfiles/**,*.sqlite3,db.sqlite3,*.pptx,deploy/**,.git/**,node_modules/**}"
+    }
+  }
+}

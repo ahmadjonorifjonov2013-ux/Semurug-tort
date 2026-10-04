@@ -1,0 +1,27 @@
+# Vercel'ga yuborilmaydigan fayllar.
+# Diqqat: media/ atayin RO'YXATGA YOZILMAYDI — saytning tort rasmlari
+# shu papkadan o'qiladi (Vercel fayl tizimi o'qilamodan, faqat o'qishga).
+
+# Maxfiy fayllar (kalitlar, Telegram token)
+.env
+.env.*
+!.env.example
+.env.local
+.env.production
+
+# Lokal muhit
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.sqlite3
+db.sqlite3
+.git/
+.gitignore
+node_modules/
+
+# Keraksiz katta papkalar (Vercel collectstatic'ni o'zi bajaradi)
+staticfiles/
+deploy/
+*.pptx

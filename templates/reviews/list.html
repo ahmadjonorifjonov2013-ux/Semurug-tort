@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Sharhlar — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-4">
+      <h1>Sharhlar</h1>
+      {% if cake %}
+      <p class="text-muted">{{ cake.name }} haqidagi mijozlar fikri</p>
+      {% else %}
+      <p class="text-muted">Mijozlarning so'nggi taassurotlari</p>
+      {% endif %}
+    </div>
+
+    {% if cake %}
+    <div class="alert alert-light border d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-cake2"></i> {{ cake.name }}</span>
+      <a href="{% url 'reviews:add' cake.slug %}" class="btn btn-danger btn-sm">Sharh qoldirish</a>
+    </div>
+    {% endif %}
+
+    {% if reviews %}
+    <div class="row g-4">
+      {% for review in reviews %}
+      <div class="col-md-6 col-lg-4">
+        <div class="quote-card h-100">
+          <div class="d-flex flex-column h-100">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center fw-bold review-avatar">
+                {{ review.author_name|first|upper }}
+              </div>
+              <div>
+                <strong class="d-block">{{ review.author_name }}</strong>
+                <small class="text-muted">{{ review.created_at|date:"d.m.Y" }}</small>
+              </div>
+            </div>
+
+            <div class="text-warning mb-2">
+              {% for i in "12345"|make_list %}
+              {% if forloop.counter <= review.rating %}
+              <i class="bi bi-star-fill"></i>
+              {% else %}
+              <i class="bi bi-star"></i>
+              {% endif %}
+              {% endfor %}
+            </div>
+
+            <p class="text-muted flex-grow-1">{{ review.text|linebreaksbr }}</p>
+
+            {% if review.cake %}
+            <a href="{% url 'cakes:detail' review.cake.slug %}" class="small text-decoration-none">
+              <i class="bi bi-cake2"></i> {{ review.cake.name }}
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-light border text-center py-5">
+      Hali sharhlar yo'q.
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

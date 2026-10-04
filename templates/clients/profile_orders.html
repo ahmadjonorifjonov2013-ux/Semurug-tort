@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Buyurtmalar tarixi — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+      <h1 class="mb-0">Buyurtmalar tarixi</h1>
+      <a href="{% url 'clients:profile' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-person"></i> Profilim
+      </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h3 class="text-danger mb-0">{{ orders_count }}</h3>
+            <small class="text-muted">Buyurtmalar soni</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h3 class="text-danger mb-0">{{ total_spent|floatformat:"-2" }}</h3>
+            <small class="text-muted">Jami xaridlangan (so'm)</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h3 class="text-danger mb-0">{{ client.orders_count }}</h3>
+            <small class="text-muted">Jami buyurtmalar</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if orders %}
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>№</th>
+              <th>Sana</th>
+              <th>Yetkazish</th>
+              <th>Miqdor</th>
+              <th>Summa</th>
+              <th>Holat</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td class="fw-bold">#{{ order.pk }}</td>
+              <td>{{ order.created_at|date:"d.m.Y" }}</td>
+              <td>
+                {{ order.delivery_date|date:"d.m.Y" }}
+                {% if order.delivery_time %}<small class="text-muted d-block">{{ order.delivery_time|time:"H:i" }}</small>{% endif %}
+              </td>
+              <td>{{ order.items_count }} dona</td>
+              <td class="fw-bold">{{ order.total_price|floatformat:"-2" }} so'm</td>
+              <td>{% include 'includes/order_status_badge.html' with order=order %}</td>
+              <td class="text-end">
+                <a href="{% url 'orders:detail' order.pk %}" class="btn btn-sm btn-outline-secondary">
+                  Ko'rish
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-light border text-center py-5">
+      <i class="bi bi-bag fs-1 text-muted d-block mb-3"></i>
+      <p class="mb-3">Sizda hali buyurtma yo'q.</p>
+      <a href="{% url 'cakes:list' %}" class="btn btn-danger">Tort tanlang</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Buyurtma qabul qilindi — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10">
+        <div class="text-center mb-4">
+          <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle mb-3 success-icon">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <h1>Buyurtmangiz qabul qilindi!</h1>
+          <p class="text-muted">Biz siz bilan tez orada bog'lanamiz. Rahmat!</p>
+        </div>
+
+        {% if order %}
+        <div class="summary-card">
+          <div class="p-4">
+            <div class="row g-3 mb-4">
+              <div class="col-sm-6">
+                <small class="text-muted d-block">Buyurtma raqami</small>
+                <strong class="fs-5">#{{ order.pk }}</strong>
+              </div>
+              <div class="col-sm-6">
+                <small class="text-muted d-block">Holat</small>
+                {% include 'includes/order_status_badge.html' with order=order %}
+              </div>
+            </div>
+
+            <h6 class="mb-2">Tarkibi</h6>
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Tort</th>
+                    <th>Soni</th>
+                    <th class="text-end">Summa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in order.items.all %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'cakes:detail' item.cake.slug %}" class="text-decoration-none">
+                        {{ item.cake.name }}
+                      </a>
+                      {% if item.options_names %}
+                      <small class="text-muted d-block">{{ item.options_names }}</small>
+                      {% endif %}
+                    </td>
+                    <td>{{ item.quantity }}</td>
+                    <td class="text-end">{{ item.subtotal|floatformat:"-2" }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            {% if is_public %}
+            <div class="alert alert-light border small mb-0">
+              <i class="bi bi-shield-lock"></i>
+              Ro'yxatdan o'tsangiz, buyurtmangizni shaxsiy kabinetda kuzatib borishingiz mumkin.
+            </div>
+            {% else %}
+            <hr>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Tovarlar</span>
+              <span>{{ order.subtotal|floatformat:"-2" }} so'm</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Yetkazib berish</span>
+              <span>{{ order.delivery_price|floatformat:"-2" }} so'm</span>
+            </div>
+            {% if order.discount %}
+            <div class="d-flex justify-content-between mb-2 text-success">
+              <span>Chegirma{% if order.promo_code %} ({{ order.promo_code.code }}){% endif %}</span>
+              <span>-{{ order.discount|floatformat:"-2" }} so'm</span>
+            </div>
+            {% endif %}
+            <div class="d-flex justify-content-between fs-5 fw-bold">
+              <span>Jami</span>
+              <span class="text-danger">{{ order.total_price|floatformat:"-2" }} so'm</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          {% if is_public %}
+          <a href="{% url 'clients:register' %}" class="btn btn-danger">Ro'yxatdan o'tish</a>
+          {% else %}
+          <a href="{% url 'orders:detail' order.pk %}" class="btn btn-danger">Buyurtma tafsilotlari</a>
+          {% endif %}
+        </div>
+
+        {% else %}
+        <div class="alert alert-light border text-center py-5">
+          <i class="bi bi-info-circle fs-1 text-muted d-block mb-3"></i>
+          <p class="mb-3">Buyurtmangizni ko'rish uchun <a href="{% url 'clients:login' %}">tizimga kiring</a>.</p>
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+          <a href="{% url 'cakes:list' %}" class="btn btn-outline-secondary">Yana xarid qilish</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

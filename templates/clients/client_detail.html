@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ client.full_name }} — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <h1 class="mb-4">Mijoz: {{ client.full_name }}</h1>
+
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <ul class="list-unstyled mb-0">
+              <li class="mb-2"><strong>Telefon:</strong> {{ client.phone }}</li>
+              <li class="mb-2"><strong>Telegram:</strong> {{ client.telegram|default:"—" }}</li>
+              <li class="mb-2"><strong>Email:</strong> {{ client.email|default:"—" }}</li>
+              <li class="mb-2"><strong>Tug'ilgan kuni:</strong> {{ client.birthday|default:"—" }}</li>
+              <li class="mb-2"><strong>Manzil:</strong> {{ client.address|default:"—" }}</li>
+              <li class="mb-2">
+                <strong>VIP:</strong>
+                {% if client.is_vip %}<span class="badge bg-warning text-dark">Ha</span>
+                {% else %}Yo'q{% endif %}
+              </li>
+              <li><strong>Izoh:</strong> {{ client.notes|default:"—" }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="mb-3">Buyurtmalar ({{ orders|length }})</h5>
+            {% if orders %}
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>№</th>
+                    <th>Sana</th>
+                    <th>Summa</th>
+                    <th>Holat</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for order in orders %}
+                  <tr>
+                    <td class="fw-bold">#{{ order.pk }}</td>
+                    <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ order.total_price|floatformat:"-2" }}</td>
+                    <td>{% include 'includes/order_status_badge.html' with order=order %}</td>
+                    <td class="text-end">
+                      <a href="{% url 'orders:detail' order.pk %}" class="btn btn-sm btn-outline-secondary">Ko'rish</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">Buyurtmalar yo'q.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h5 class="mb-3">Sharhlar ({{ reviews|length }})</h5>
+            {% if reviews %}
+            {% for review in reviews %}
+            <div class="border-bottom pb-3 mb-3">
+              <strong>{{ review.author_name }}</strong>
+              <span class="text-warning ms-2">
+                {% for i in "12345"|make_list %}
+                {% if forloop.counter <= review.rating %}
+                <i class="bi bi-star-fill"></i>
+                {% else %}
+                <i class="bi bi-star"></i>
+                {% endif %}
+                {% endfor %}
+              </span>
+              <p class="mb-0 small text-muted">{{ review.text }}</p>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-muted mb-0">Sharhlar yo'q.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

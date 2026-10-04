@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Aloqa — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h1>Biz bilan aloqa</h1>
+      <p class="text-muted">Savollaringiz bormi? Quyidagi forma orqali yozing — tez orada javob beramiz.</p>
+    </div>
+
+    <div class="row g-5">
+      <!-- Forma -->
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% include 'includes/form_fields.html' %}
+              <button type="submit" class="btn btn-danger w-100 py-2">
+                <i class="bi bi-send"></i> Xabar yuborish
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aloqa ma'lumotlari -->
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <h5 class="mb-4">Bog'lanish usullari</h5>
+
+            <ul class="list-unstyled mb-4">
+              {% if settings_obj.phone %}
+              <li class="d-flex gap-3 mb-3">
+                <i class="bi bi-telephone-fill text-danger fs-5"></i>
+                <div>
+                  <strong class="d-block">Telefon</strong>
+                  <a href="tel:{{ settings_obj.phone }}" class="text-muted">{{ settings_obj.phone }}</a>
+                </div>
+              </li>
+              {% endif %}
+              {% if settings_obj.telegram %}
+              <li class="d-flex gap-3 mb-3">
+                <i class="bi bi-telegram text-danger fs-5"></i>
+                <div>
+                  <strong class="d-block">Telegram</strong>
+                  <a href="https://t.me/{{ settings_obj.telegram|cut:'@' }}" target="_blank" rel="noopener"
+                    class="text-muted">@{{ settings_obj.telegram|cut:'@' }}</a>
+                </div>
+              </li>
+              {% endif %}
+              {% if settings_obj.address %}
+              <li class="d-flex gap-3 mb-3">
+                <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+                <div>
+                  <strong class="d-block">Manzil</strong>
+                  <span class="text-muted">{{ settings_obj.address }}</span>
+                </div>
+              </li>
+              {% endif %}
+              {% if settings_obj.work_hours %}
+              <li class="d-flex gap-3 mb-3">
+                <i class="bi bi-clock-fill text-danger fs-5"></i>
+                <div>
+                  <strong class="d-block">Ish vaqti</strong>
+                  <span class="text-muted">{{ settings_obj.work_hours }}</span>
+                </div>
+              </li>
+              {% endif %}
+            </ul>
+
+            {% if settings_obj.map_url %}
+            <a href="{{ settings_obj.map_url }}" target="_blank" rel="noopener" class="btn btn-outline-danger w-100 mb-3">
+              <i class="bi bi-map"></i> Xaritada ko'rish
+            </a>
+            {% endif %}
+
+            <div class="alert alert-light border small mb-0">
+              <i class="bi bi-info-circle"></i>
+              Buyurtma uchun eng qulay usul — <a href="{% url 'cakes:list' %}">tortni tanlang</a> va
+              savatga qo'shing.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

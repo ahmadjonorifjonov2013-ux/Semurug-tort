@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Biz haqimizda — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6">
+        <h1 class="mb-4">Biz haqimizda</h1>
+
+        {% if settings_obj.about_text %}
+        <p class="lead">{{ settings_obj.about_text|linebreaksbr }}</p>
+        {% else %}
+        <p class="lead">
+          {{ settings_obj.site_name|default:"Biz" }} — oilaviy tort yasash ustaxonasi. Biz har bir tortga
+          yondashuvni shaxsiy deb hisoblaymiz.
+        </p>
+        {% endif %}
+
+        <p class="text-muted">
+          Bizning maqsadimiz — mijozning bayramini unutilmas qilish. Shu sababli faqat yangi va tabiiy
+          ingredientlardan foydalanamiz, har bir buyurtmani alohida e'tib bilan tayyorlaymiz.
+        </p>
+
+        <div class="row g-3 mt-4">
+          <div class="col-sm-6">
+            <div class="d-flex gap-3">
+              <i class="bi bi-flower1 fs-3 text-danger"></i>
+              <div>
+                <strong class="d-block">Tabiiy ingredientlar</strong>
+                <small class="text-muted">Sariyog', qaymoq, yong'oq va meva</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex gap-3">
+              <i class="bi bi-award fs-3 text-danger"></i>
+              <div>
+                <strong class="d-block">5 yil tajriba</strong>
+                <small class="text-muted">3000+ mamnun buyurtma</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex gap-3">
+              <i class="bi bi-brush fs-3 text-danger"></i>
+              <div>
+                <strong class="d-block">Dizayn xizmati</strong>
+                <small class="text-muted">Sizning g'oyangizni tayyorlaymiz</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex gap-3">
+              <i class="bi bi-clock-history fs-3 text-danger"></i>
+              <div>
+                <strong class="d-block">Oldindan buyurtma</strong>
+                <small class="text-muted">Kichik muddatda ham tayyorlaymiz</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <a href="{% url 'cakes:list' %}" class="btn btn-danger btn-lg">Tortlarni ko'rish</a>
+          <a href="{% url 'core:contact' %}" class="btn btn-outline-secondary btn-lg">Bog'lanish</a>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        {% if gallery %}
+        <div class="row g-3">
+          {% for photo in gallery|slice:":6" %}
+          <div class="{% cycle 'col-7' 'col-5' %}">
+            <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:'Tort' }}"
+              class="img-fluid rounded shadow-sm w-100 about-img">
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-body-secondary rounded d-flex align-items-center justify-content-center about-img">
+          <i class="bi bi-cake2 display-1 text-muted"></i>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if settings_obj %}
+<section class="py-5 bg-body-tertiary">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-md-4">
+        <h2 class="fw-bold text-danger mb-1">{{ settings_obj.work_hours }}</h2>
+        <p class="text-muted mb-0">Ish vaqti</p>
+      </div>
+      <div class="col-md-4">
+        <h2 class="fw-bold text-danger mb-1">{{ settings_obj.address|truncatechars:40 }}</h2>
+        <p class="text-muted mb-0">Bizning manzilimiz</p>
+      </div>
+      <div class="col-md-4">
+        <h2 class="fw-bold text-danger mb-1">{{ settings_obj.phone }}</h2>
+        <p class="text-muted mb-0">Telefon</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

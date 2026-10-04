@@ -1,0 +1,73 @@
+{% extends "admin/index.html" %}
+{% load admin_stats %}
+
+{% block content %}
+{% admin_stats as stats %}
+<div class="stats-grid">
+  <a class="stat-card" href="{% url 'admin:orders_order_changelist' %}">
+    <span class="stat-icon bg-rose">&#128722;</span>
+    <span>
+      <span class="stat-value">{{ stats.orders }}</span>
+      <span class="stat-label d-block">Buyurtmalar</span>
+    </span>
+  </a>
+
+  <a class="stat-card" href="{% url 'admin:orders_order_changelist' %}?status__exact=new">
+    <span class="stat-icon bg-blue">&#8987;</span>
+    <span>
+      <span class="stat-value">{{ stats.orders_new }}</span>
+      <span class="stat-label d-block">Yangi buyurtmalar</span>
+    </span>
+  </a>
+
+  <a class="stat-card" href="{% url 'admin:orders_order_changelist' %}?created_at__date=today">
+    <span class="stat-icon bg-teal">&#128197;</span>
+    <span>
+      <span class="stat-value">{{ stats.orders_today }}</span>
+      <span class="stat-label d-block">Bugungi buyurtma</span>
+    </span>
+  </a>
+
+  <a class="stat-card" href="{% url 'admin:cakes_cake_changelist' %}">
+    <span class="stat-icon bg-amber">&#127856;</span>
+    <span>
+      <span class="stat-value">{{ stats.cakes }}</span>
+      <span class="stat-label d-block">Faol tortlar</span>
+    </span>
+  </a>
+
+  <a class="stat-card" href="{% url 'admin:clients_client_changelist' %}">
+    <span class="stat-icon bg-green">&#128101;</span>
+    <span>
+      <span class="stat-value">{{ stats.clients }}</span>
+      <span class="stat-label d-block">Mijozlar</span>
+    </span>
+  </a>
+
+  <a class="stat-card" href="{% url 'admin:reviews_review_changelist' %}?is_published__exact=0">
+    <span class="stat-icon bg-violet">&#11088;</span>
+    <span>
+      <span class="stat-value">{{ stats.reviews_pending }}</span>
+      <span class="stat-label d-block">Tasdiqlanmagan sharh</span>
+    </span>
+  </a>
+
+  <a class="stat-card" href="{% url 'admin:core_contactmessage_changelist' %}?is_handled__exact=0">
+    <span class="stat-icon bg-rose">&#9993;</span>
+    <span>
+      <span class="stat-value">{{ stats.messages_new }}</span>
+      <span class="stat-label d-block">Yangi xabarlar</span>
+    </span>
+  </a>
+
+  <div class="stat-card">
+    <span class="stat-icon bg-green">&#128176;</span>
+    <span>
+      <span class="stat-value">{{ stats.revenue|floatformat:"-2" }}</span>
+      <span class="stat-label d-block">Yetkazilgan savdo (so'm)</span>
+    </span>
+  </div>
+</div>
+
+{{ block.super }}
+{% endblock %}

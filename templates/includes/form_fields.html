@@ -1,0 +1,33 @@
+{% for field in form %}
+  {% if field.is_hidden %}
+    {{ field }}
+  {% else %}
+<div class="mb-3{% if field.errors %} has-error{% endif %}">
+  {% if field.id_for_label %}
+  <label for="{{ field.id_for_label }}" class="form-label">
+  {% else %}
+  {# radio/checkbox guruhlarida label butun guruhga (container) bog'lanadi #}
+  <label for="{{ field.auto_id }}" class="form-label">
+  {% endif %}
+    {{ field.label }}
+    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+  </label>
+
+  {{ field }}
+
+  {% if field.help_text %}
+  <div class="form-text">{{ field.help_text|safe }}</div>
+  {% endif %}
+
+  {% for error in field.errors %}
+  <div class="invalid-feedback d-block">{{ error }}</div>
+  {% endfor %}
+</div>
+  {% endif %}
+{% endfor %}
+
+{% if form.non_field_errors %}
+<div class="alert alert-danger">
+  {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+</div>
+{% endif %}

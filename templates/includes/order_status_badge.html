@@ -1,0 +1,15 @@
+{% if order.status == 'new' %}
+<span class="badge bg-info text-dark">Yangi</span>
+{% elif order.status == 'confirmed' %}
+<span class="badge bg-primary">Tasdiqlandi</span>
+{% elif order.status == 'in_progress' %}
+<span class="badge bg-warning text-dark">Tayyorlanmoqda</span>
+{% elif order.status == 'ready' %}
+<span class="badge bg-success">Tayyor</span>
+{% elif order.status == 'delivered' %}
+<span class="badge bg-dark">Yetkazildi</span>
+{% elif order.status == 'cancelled' %}
+<span class="badge bg-secondary">Bekor qilindi</span>
+{% else %}
+<span class="badge bg-secondary">{{ order.get_status_display }}</span>
+{% endif %}

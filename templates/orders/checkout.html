@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}Buyurtmani rasmiylashtirish — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="section section--cream">
+  <div class="shell">
+
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Bosh sahifa</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'orders:cart' %}">Savat</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Rasmiylashtirish</li>
+      </ol>
+    </nav>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4" data-reveal>
+      <div>
+        <span class="eyebrow">Oxirgi qadam</span>
+        <h1 class="mb-0">Buyurtmani rasmiylashtirish</h1>
+      </div>
+      <div class="checkout-steps">
+        <span class="cs done"><span class="n"><i class="bi bi-check"></i></span> Savat</span>
+        <i class="bi bi-chevron-right sep"></i>
+        <span class="cs active"><span class="n">2</span> Ma'lumotlar</span>
+        <i class="bi bi-chevron-right sep"></i>
+        <span class="cs"><span class="n">3</span> Tasdiqlash</span>
+      </div>
+    </div>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="row g-4">
+        <div class="col-lg-7 col-xl-8" data-reveal>
+          <div class="form-card">
+
+            <!-- 1. Bog'lanish -->
+            <div class="checkout-block">
+              <div class="checkout-block__head">
+                <span class="checkout-block__num">1</span>
+                <h3>Bog'lanish ma'lumotlari</h3>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label" for="{{ form.name.id_for_label }}">
+                    {{ form.name.label }} <span class="text-danger">*</span>
+                  </label>
+                  {{ form.name }}
+                  {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="{{ form.phone.id_for_label }}">
+                    {{ form.phone.label }} <span class="text-danger">*</span>
+                  </label>
+                  {{ form.phone }}
+                  {% for error in form.phone.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="{{ form.telegram.id_for_label }}">{{ form.telegram.label }}</label>
+                  {{ form.telegram }}
+                  <div class="form-text">Ixtiyoriy — buyurtma holati bo'yicha xabar berish uchun.</div>
+                  {% for error in form.telegram.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- 2. Yetkazib berish -->
+            <div class="checkout-block">
+              <div class="checkout-block__head">
+                <span class="checkout-block__num">2</span>
+                <h3>Yetkazib berish</h3>
+              </div>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label" for="{{ form.delivery_address.id_for_label }}">
+                    {{ form.delivery_address.label }} <span class="text-danger">*</span>
+                  </label>
+                  {{ form.delivery_address }}
+                  {% for error in form.delivery_address.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="{{ form.delivery_date.id_for_label }}">
+                    {{ form.delivery_date.label }} <span class="text-danger">*</span>
+                  </label>
+                  {{ form.delivery_date }}
+                  {% for error in form.delivery_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="{{ form.delivery_time.id_for_label }}">{{ form.delivery_time.label }}</label>
+                  {{ form.delivery_time }}
+                  {% for error in form.delivery_time.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- 3. To'lov -->
+            <div class="checkout-block">
+              <div class="checkout-block__head">
+                <span class="checkout-block__num">3</span>
+                <h3>To'lov usuli</h3>
+              </div>
+              <label class="form-label" for="{{ form.payment_method.id_for_label }}">{{ form.payment_method.label }}</label>
+              {{ form.payment_method }}
+              {% for error in form.payment_method.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+
+            <hr class="my-4">
+
+            <!-- 4. Qo'shimcha -->
+            <div class="checkout-block">
+              <div class="checkout-block__head">
+                <span class="checkout-block__num">4</span>
+                <h3>Qo'shimcha</h3>
+              </div>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label" for="{{ form.comment.id_for_label }}">{{ form.comment.label }}</label>
+                  {{ form.comment }}
+                  <div class="form-text">Tortga yoziladigan matn, dizayn istaklari va h.k.</div>
+                  {% for error in form.comment.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="{{ form.promo_code.id_for_label }}">{{ form.promo_code.label }}</label>
+                  {{ form.promo_code }}
+                  {% for error in form.promo_code.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+              </div>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger mt-4 mb-0">
+              {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-lg-5 col-xl-4" data-reveal data-reveal-delay="100">
+          <div class="summary-card order-summary sticky-top" style="top: 90px;">
+            <div class="p-4">
+              <h5 class="mb-3">Buyurtma xulosasi</h5>
+
+              <div class="d-grid gap-3 mb-3">
+                {% for row in rows %}
+                <div class="order-line">
+                  {% if row.cake.main_image %}
+                  <img src="{{ row.cake.main_image.url }}" alt="{{ row.cake.name }}" class="order-line__img"
+                    loading="lazy" decoding="async">
+                  {% else %}
+                  <span class="order-line__img d-flex align-items-center justify-content-center">
+                    <i class="bi bi-cake2 text-muted"></i>
+                  </span>
+                  {% endif %}
+                  <div class="flex-grow-1">
+                    <a class="fw-semibold text-reset d-block" href="{{ row.cake.get_absolute_url }}">
+                      {{ row.cake.name|truncatechars:26 }}
+                    </a>
+                    <small class="text-muted">{{ row.unit_price|floatformat:"-2" }} × {{ row.quantity }}</small>
+                  </div>
+                  <span class="fw-semibold text-nowrap">{{ row.subtotal|floatformat:"-2" }}</span>
+                </div>
+                {% endfor %}
+              </div>
+
+              <hr>
+              <div class="row-line">
+                <span class="text-muted">Tovarlar ({{ count }})</span>
+                <span>{{ total|floatformat:"-2" }} so'm</span>
+              </div>
+              {% if settings_obj %}
+              <div class="row-line">
+                <span class="text-muted">Yetkazib berish</span>
+                <span>
+                  {% if settings_obj.free_delivery_from and total >= settings_obj.free_delivery_from %}
+                  <span class="text-success fw-semibold">Bepul</span>
+                  {% else %}
+                  {{ settings_obj.delivery_price }} so'm
+                  {% endif %}
+                </span>
+              </div>
+              {% endif %}
+
+              <hr>
+              <div class="total-line">
+                <span>Jami</span>
+                <span class="amount">{{ total|floatformat:"-2" }} <small class="fw-normal" style="font-size:.5em;">so'm</small></span>
+              </div>
+
+              <button type="submit" class="btn btn-brand btn-lg w-100 mt-3">
+                <i class="bi bi-shield-check"></i> Buyurtmani tasdiqlash
+              </button>
+              <a href="{% url 'orders:cart' %}" class="btn btn-outline-secondary w-100 mt-2">
+                <i class="bi bi-arrow-left"></i> Savatga qaytish
+              </a>
+
+              <div class="mt-3 pt-3 border-top">
+                <div class="trust-inline"><i class="bi bi-lock"></i> Ma'lumotlaringiz xavfsiz saqlanadi</div>
+                <div class="trust-inline"><i class="bi bi-telephone"></i> Operator tasdiqlash uchun qo'ng'iroq qiladi</div>
+                {% if settings_obj.free_delivery_from %}
+                <div class="trust-inline"><i class="bi bi-truck"></i> {{ settings_obj.free_delivery_from }} so'mdan ortiq — bepul</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

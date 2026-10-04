@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Sharh qoldirish — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8">
+        <div class="text-center mb-4">
+          <h1>Sharh qoldirish</h1>
+          {% if cake %}
+          <p class="text-muted">{{ cake.name }} haqida fikringizni yozing</p>
+          {% else %}
+          <p class="text-muted">Tajribangizni yozing</p>
+          {% endif %}
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% include 'includes/form_fields.html' %}
+              <button type="submit" class="btn btn-danger w-100 py-2">
+                <i class="bi bi-send"></i> Yuborish
+              </button>
+            </form>
+
+            <p class="small text-muted mt-3 mb-0 text-center">
+              Sharh moderatsiyadan o'tgach saytda ko'rinadi.
+            </p>
+          </div>
+        </div>
+
+        {% if cake %}
+        <p class="text-center mt-3 mb-0">
+          <a href="{% url 'cakes:detail' cake.slug %}"><i class="bi bi-arrow-left"></i> Tortga qaytish</a>
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% load static %}
+<footer class="site-footer">
+  <div class="shell">
+    <div class="row g-4 g-lg-5">
+      <div class="col-lg-4">
+        <a class="brand mb-3 d-inline-flex" href="{% url 'core:home' %}" style="color:#fff !important;">
+          <span class="brand-mark"><i class="bi bi-cake2-fill"></i></span>
+          <span>
+            <span class="brand-text" style="color:#fff;">{{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}</span>
+            <span class="brand-sub" style="color:rgba(255,255,255,.5);">Tort &amp; Shirinliklar</span>
+          </span>
+        </a>
+        <p class="small mb-4" style="max-width:34ch;">
+          {{ settings_obj.about_text|default:"Sifatli va mazali tortlar — har bir bayram uchun eng yaxshi tanlov."|truncatechars:180 }}
+        </p>
+        <div class="footer-social">
+          {% if settings_obj.telegram %}
+          <a href="https://t.me/{{ settings_obj.telegram|cut:'@' }}" target="_blank" rel="noopener" aria-label="Telegram"><i class="bi bi-telegram"></i></a>
+          {% endif %}
+          {% if settings_obj.instagram %}
+          <a href="{{ settings_obj.instagram }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          {% endif %}
+          {% if settings_obj.map_url %}
+          <a href="{{ settings_obj.map_url }}" target="_blank" rel="noopener" aria-label="Xarita"><i class="bi bi-geo-alt"></i></a>
+          {% endif %}
+          {% if settings_obj.phone %}
+          <a href="tel:{{ settings_obj.phone }}" aria-label="Telefon"><i class="bi bi-telephone"></i></a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <p class="footer-title">Bo'limlar</p>
+        <ul class="footer-links">
+          <li><a href="{% url 'cakes:list' %}">Tortlar</a></li>
+          <li><a href="{% url 'reviews:list' %}">Sharhlar</a></li>
+          <li><a href="{% url 'core:faq' %}">Savollar</a></li>
+          <li><a href="{% url 'core:about' %}">Biz haqimizda</a></li>
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <p class="footer-title">Bog'lanish</p>
+        <ul class="footer-links">
+          {% if settings_obj.phone %}
+          <li><a href="tel:{{ settings_obj.phone }}"><i class="bi bi-telephone me-2"></i>{{ settings_obj.phone }}</a></li>
+          {% endif %}
+          {% if settings_obj.address %}
+          <li><i class="bi bi-geo-alt me-2"></i>{{ settings_obj.address }}</li>
+          {% endif %}
+          {% if settings_obj.work_hours %}
+          <li><i class="bi bi-clock me-2"></i>{{ settings_obj.work_hours }}</li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="col-lg-3">
+        <p class="footer-title">Yetkazib berish</p>
+        {% if settings_obj.free_delivery_from %}
+        <div class="p-3 rounded-3" style="background: rgba(255,255,255,.06);">
+          <i class="bi bi-truck"></i>
+          <span class="small">
+            <strong style="color:#fff;">{{ settings_obj.free_delivery_from }} so'm</strong>dan katta buyurtmalarga
+            yetkazib berish <strong style="color:#fff;">bepul</strong>.
+          </span>
+        </div>
+        {% elif settings_obj.delivery_price %}
+        <p class="small mb-0">Yetkazib berish: {{ settings_obj.delivery_price }} so'm</p>
+        {% else %}
+        <p class="small mb-0">Toshkent bo'ylab yetkazib berish mavjud.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="footer-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>&copy; {% now "Y" %} {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}. Barcha huquqlar himoyalangan.</span>
+      <span class="d-flex align-items-center gap-3">
+        <a href="{% url 'core:contact' %}">Aloqa</a>
+        <a href="{% url 'core:faq' %}">Yordam</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'clients:profile' %}">Profil</a>
+        {% else %}
+        <a href="{% url 'clients:login' %}">Kirish</a>
+        {% endif %}
+      </span>
+    </div>
+  </div>
+</footer>

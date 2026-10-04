@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if current_category %}{{ current_category.name }}{% else %}Tortlar{% endif %} — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block canonical %}
+{% if current_category %}<link rel="canonical" href="{% url 'cakes:category' category_slug=current_category.slug %}">{% else %}<link rel="canonical" href="{% url 'cakes:list' %}">{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="bg-body-tertiary py-4">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Bosh sahifa</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cakes:list' %}">Tortlar</a></li>
+        {% if current_category %}
+        <li class="breadcrumb-item active" aria-current="page">{{ current_category.name }}</li>
+        {% endif %}
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="py-4">
+  <div class="container">
+    <div class="row g-4">
+      <!-- Filtrlar -->
+      <aside class="col-lg-3">
+        <div class="summary-card mb-4">
+          <div class="p-4">
+            <h5 class="mb-3"><i class="bi bi-sliders"></i> Filtrlar</h5>
+            <form method="get" action="{% url 'cakes:list' %}">
+              {% if current_category %}
+              <input type="hidden" name="category" value="{{ current_category.slug }}">
+              {% endif %}
+              <input type="hidden" name="sort" value="{{ sort }}">
+
+              <div class="mb-3">
+                <label class="form-label">Qidirish</label>
+                <input type="text" name="search" class="form-control" value="{{ selected.search|default:'' }}"
+                  placeholder="Tort nomi...">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Kategoriya</label>
+                <select name="category" class="form-select">
+                  <option value="">Barchasi</option>
+                  {% for cat in categories %}
+                  <option value="{{ cat.slug }}" {% if selected.category == cat.slug %}selected{% endif %}>
+                    {{ cat.name }} ({{ cat.cakes_count }})
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Narx oralig'i (so'm)</label>
+                <div class="d-flex gap-2">
+                  <input type="number" name="price_min" class="form-control" placeholder="dan"
+                    value="{{ selected.price_min|default:'' }}">
+                  <input type="number" name="price_max" class="form-control" placeholder="gacha"
+                    value="{{ selected.price_max|default:'' }}">
+                </div>
+                {% if price_range.low %}
+                <small class="text-muted">
+                  Mavjud: {{ price_range.low|floatformat:"-2" }} — {{ price_range.high|floatformat:"-2" }} so'm
+                </small>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="available" value="1" id="fAvailable"
+                    {% if selected.available %}checked{% endif %}>
+                  <label class="form-check-label" for="fAvailable">Faqat mavjudlari</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="preorder" value="1" id="fPreorder"
+                    {% if selected.preorder %}checked{% endif %}>
+                  <label class="form-check-label" for="fPreorder">Faqat oldindan buyurtma</label>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-danger w-100 mb-2">Filtrlash</button>
+              <a href="{% url 'cakes:list' %}" class="btn btn-outline-secondary w-100">Tozalash</a>
+            </form>
+          </div>
+        </div>
+
+        {% if allergens %}
+        <div class="summary-card">
+          <div class="p-4">
+            <h6 class="mb-2">Allergenlar</h6>
+            <div class="d-flex flex-wrap gap-2">
+              {% for al in allergens %}
+              <a href="?allergen={{ al.name|urlencode }}"
+                class="btn btn-sm {% if selected.allergen == al.name %}btn-danger{% else %}btn-outline-secondary{% endif %}">
+                {{ al.name }}
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </aside>
+
+      <!-- Ro'yxat -->
+      <div class="col-lg-9">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+          <div>
+            <h1 class="h3 mb-1">{{ current_category.name|default:"Barcha tortlar" }}</h1>
+            <small class="text-muted">{{ result_count }} ta tort topildi</small>
+          </div>
+
+          <form method="get" class="d-flex align-items-center gap-2">
+            {% for key, value in selected.items %}
+            {% if key != 'sort' and key != 'page' and value %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+            {% endfor %}
+            <label class="form-label mb-0 text-muted small">Saralash:</label>
+            <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+              {% for key, label in sort_labels.items %}
+              <option value="{{ key }}" {% if sort == key %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </form>
+        </div>
+
+        {% if current_category.description %}
+        <p class="text-muted">{{ current_category.description }}</p>
+        {% endif %}
+
+        {% if cakes %}
+        <div class="row g-4">
+          {% for cake in cakes %}
+          <div class="col-6 col-md-4">
+            {% include 'includes/cake_card.html' with cake=cake %}
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="mt-5" aria-label="Sahifalar">
+          <ul class="pagination justify-content-center">
+            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+              <a class="page-link"
+                href="?{% for key, value in selected.items %}{% if key != 'page' and value %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page=1">
+                Birinchi
+              </a>
+            </li>
+            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+              <a class="page-link"
+                href="?{% for key, value in selected.items %}{% if key != 'page' and value %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number|default:1 }}">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+            <li class="page-item active" aria-current="page">
+              <span class="page-link">{{ num }}</span>
+            </li>
+            {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+            <li class="page-item">
+              <a class="page-link"
+                href="?{% for key, value in selected.items %}{% if key != 'page' and value %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ num }}">
+                {{ num }}
+              </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+              <a class="page-link"
+                href="?{% for key, value in selected.items %}{% if key != 'page' and value %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number|default:page_obj.number }}">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+              <a class="page-link"
+                href="?{% for key, value in selected.items %}{% if key != 'page' and value %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">
+                Oxirgi
+              </a>
+            </li>
+          </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="alert alert-light border text-center py-5">
+          <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+          <p class="mb-3">Kerakli tort topilmadi.</p>
+          <a href="{% url 'cakes:list' %}" class="btn btn-outline-secondary">Barcha tortlarni ko'rish</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,56 @@
+# Render.com Blueprint — "New > Blueprint" orqali loyihani bir zumda yaratish.
+#   https://render.com/docs/blueprint-spec
+#
+# Render dashboard'da:  New  ->  Blueprint  ->  shu reponi tanlang.
+# render.yaml topildi, sozlamalar avtomatik to'ldiriladi.
+#
+# Muhim: render.yaml'dagi `sync: false` o'zgaruvchilar (kalitlar) Render'ning
+# o'zida qo'lda kiritiladi — bu faylda maxfiy narsa saqlanmaydi.
+
+services:
+  - type: web
+    name: semurog-tort
+    runtime: python
+    plan: free
+    region: frankfurt
+    branch: main
+    buildCommand: >-
+      pip install -r requirements.txt &&
+      python manage.py migrate --noinput &&
+      python manage.py collectstatic --noinput
+    # O'zgaruvchilarni Render'da qo'lda kiritish (sync: false)
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DJANGO_DEBUG
+        value: "False"
+      # Render beradigan bepul domen nomi avtomatik qo'shiladi
+      - key: DJANGO_ALLOWED_HOSTS
+        sync: false
+      - key: DJANGO_CORS_ORIGINS
+        sync: false
+      - key: SITE_URL
+        sync: false
+      - key: MEDIA_VIA_DJANGO
+        value: "True"
+      - key: DJANGO_LOG_LEVEL
+        value: "INFO"
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: TELEGRAM_TIMEOUT
+        value: "8"
+    # PostgreSQL instance'ni shu service'ga ulash (Render ichki tarmoq)
+    fromDatabase:
+      name: semurog-tort-db
+      property: connectionString
+
+databases:
+  - name: semurog-tort-db
+    databaseName: semurog_tort
+    user: semurog
+    # type: postgres
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: "17"

@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+.venv/
+venv/
+.env
+staticfiles/
+.DS_Store
+.env.production
+deploy/.run/
+deploy/tunnel-url.txt
+staticfiles/
+.vercel/
+
+# Eslatma: media/ atayin ignor qilinmaydi — tort/banner rasmlari
+# Vercel'ga shu orqali boradi (Vercel fayl tizimi o'qilamodan).
+# Admin panel orqali yangi rasm yuklansa, uni `git add media` bilan
+# yuborish kerak.

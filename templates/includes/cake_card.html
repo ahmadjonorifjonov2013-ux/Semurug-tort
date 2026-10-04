@@ -1,0 +1,57 @@
+{% load static %}
+<article class="cake-card">
+  <a href="{{ cake.get_absolute_url }}" class="cake-card__media" aria-label="{{ cake.name }}">
+    {% if cake.main_image %}
+    <img src="{{ cake.main_image.url }}" alt="{{ cake.name }}" class="cake-img" loading="lazy">
+    {% else %}
+    <div class="cake-img d-flex align-items-center justify-content-center bg-body-tertiary">
+      <i class="bi bi-cake2 fs-1 text-muted"></i>
+    </div>
+    {% endif %}
+  </a>
+
+  <div class="cake-card__flag">
+    {% if cake.has_discount %}
+    <span class="badge bg-danger">-{{ cake.discount_percent }}%</span>
+    {% endif %}
+  </div>
+  <div class="cake-card__flag-end">
+    {% if not cake.is_available %}
+    <span class="badge bg-dark">Mavjud emas</span>
+    {% elif cake.is_preorder %}
+    <span class="badge bg-warning text-dark">{{ cake.min_order_days }} kun oldin</span>
+    {% endif %}
+  </div>
+
+  <div class="cake-card__body">
+    <span class="cake-card__cat">{{ cake.category.name }}</span>
+    <h3 class="cake-card__title">
+      <a href="{{ cake.get_absolute_url }}">{{ cake.name|truncatechars:46 }}</a>
+    </h3>
+    <p class="cake-card__desc">{{ cake.description|truncatechars:64 }}</p>
+
+    <div class="d-flex align-items-end justify-content-between gap-3 mt-auto">
+      <div class="d-flex flex-column">
+        <span class="price">{{ cake.price|floatformat:"-2" }} <small class="fw-normal" style="font-size:.62em;">so'm</small></span>
+        {% if cake.has_discount %}
+        <span class="price-old">{{ cake.old_price|floatformat:"-2" }} so'm</span>
+        {% elif cake.weight_gram %}
+        <span class="small text-muted">{{ cake.weight_gram }} g</span>
+        {% endif %}
+      </div>
+
+      {% if cake.is_available %}
+      <form method="post" action="{% url 'orders:cart_add' cake.pk %}" class="quick-add m-0">
+        {% csrf_token %}
+        <input type="hidden" name="quantity" value="1">
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" class="btn btn-sm btn-brand px-3" title="Savatga qo'shish" aria-label="Savatga qo'shish">
+          <i class="bi bi-bag-plus"></i>
+        </button>
+      </form>
+      {% else %}
+      <a href="{{ cake.get_absolute_url }}" class="btn btn-sm btn-outline-secondary px-3">Batafsil</a>
+      {% endif %}
+    </div>
+  </div>
+</article>

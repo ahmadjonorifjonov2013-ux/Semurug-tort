@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Buyurtma #{{ order.pk }} — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+      <div>
+        <h1 class="mb-1">Buyurtma #{{ order.pk }}</h1>
+        <small class="text-muted">{{ order.created_at|date:"d.m.Y H:i" }}</small>
+      </div>
+      {% include 'includes/order_status_badge.html' with order=order %}
+    </div>
+
+    <div class="summary-card mb-4">
+      <div class="p-4">
+        {% include 'includes/order_timeline.html' with order=order %}
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="summary-card mb-4">
+            <div class="p-4">
+              <h5 class="mb-3">Tarkibi</h5>
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Tort</th>
+                    <th>Narx</th>
+                    <th>Soni</th>
+                    <th class="text-end">Summa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in order.items.all %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'cakes:detail' item.cake.slug %}" class="text-decoration-none">
+                        {{ item.cake.name }}
+                      </a>
+                      {% if item.options_names %}
+                      <small class="text-muted d-block">{{ item.options_names }}</small>
+                      {% endif %}
+                      {% if item.comment %}
+                      <small class="text-muted d-block"><i class="bi bi-chat-left-text"></i> {{ item.comment }}</small>
+                      {% endif %}
+                    </td>
+                    <td>{{ item.price|floatformat:"-2" }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td class="text-end">{{ item.subtotal|floatformat:"-2" }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="p-4">
+            <h5 class="mb-3">To'lov</h5>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Tovarlar</span>
+              <span>{{ order.subtotal|floatformat:"-2" }} so'm</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Yetkazib berish</span>
+              <span>{{ order.delivery_price|floatformat:"-2" }} so'm</span>
+            </div>
+            {% if order.discount %}
+            <div class="d-flex justify-content-between mb-2 text-success">
+              <span>Chegirma{% if order.promo_code %} ({{ order.promo_code.code }}){% endif %}</span>
+              <span>-{{ order.discount|floatformat:"-2" }} so'm</span>
+            </div>
+            {% endif %}
+            <hr>
+            <div class="d-flex justify-content-between fs-5 fw-bold">
+              <span>Jami</span>
+              <span class="text-danger">{{ order.total_price|floatformat:"-2" }} so'm</span>
+            </div>
+            <p class="mb-0 mt-2">
+              <span class="badge {% if order.is_paid %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                {% if order.is_paid %}To'langan{% else %}To'lanmagan{% endif %}
+              </span>
+              <span class="badge bg-light text-dark border ms-1">{{ order.get_payment_method_display }}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="summary-card mb-4">
+          <div class="p-4">
+            <h5 class="mb-3">Yetkazib berish</h5>
+            <ul class="list-unstyled mb-0">
+              <li class="mb-2"><strong>Mijoz:</strong> {{ order.client.full_name }}</li>
+              <li class="mb-2"><strong>Telefon:</strong> {{ order.client.phone }}</li>
+              <li class="mb-2"><strong>Sana:</strong> {{ order.delivery_date|date:"d.m.Y" }}</li>
+              {% if order.delivery_time %}
+              <li class="mb-2"><strong>Vaqt:</strong> {{ order.delivery_time|time:"H:i" }}</li>
+              {% endif %}
+              <li class="mb-0"><strong>Manzil:</strong> {{ order.delivery_address|linebreaksbr }}</li>
+            </ul>
+
+            {% if order.comment %}
+            <hr>
+            <strong class="d-block mb-1">Izoh:</strong>
+            <small class="text-muted">{{ order.comment|linebreaksbr }}</small>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if order.status == 'new' or order.status == 'confirmed' %}
+        <form method="post" action="{% url 'orders:cancel' order.pk %}"
+          onsubmit="return confirm('Buyurtmani bekor qilmoqchimisiz?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger w-100">
+            <i class="bi bi-x-circle"></i> Bekor qilish
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <a href="{% url 'orders:my' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Buyurtmalarim
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

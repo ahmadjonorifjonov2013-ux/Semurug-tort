@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Profilim — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <h1 class="mb-4">Profilim</h1>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h5 class="mb-3">Ma'lumotlarim</h5>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% include 'includes/form_fields.html' %}
+              <button type="submit" class="btn btn-danger">
+                <i class="bi bi-save"></i> Saqlash
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body text-center">
+            <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center fw-bold mx-auto mb-3 profile-avatar">
+              {{ client.full_name|first|upper }}
+            </div>
+            <h5 class="mb-1">{{ client.full_name }}</h5>
+            <p class="text-muted small mb-0">{{ client.phone }}</p>
+            {% if client.is_vip %}
+            <span class="badge bg-warning text-dark mt-2">VIP mijoz</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h6 class="mb-3">Buyurtmalarim</h6>
+            <a href="{% url 'clients:profile_orders' %}" class="btn btn-outline-danger w-100 mb-2">
+              Buyurtmalar tarixi
+            </a>
+            <a href="{% url 'orders:my' %}" class="btn btn-outline-secondary w-100 mb-2">
+              Barcha buyurtmalarim
+            </a>
+            <a href="{% url 'clients:logout' %}" class="btn btn-outline-danger w-100">Chiqish</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

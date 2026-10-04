@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Ro'yxatdan o'tish — {{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8">
+        <div class="text-center mb-4">
+          <h1>Ro'yxatdan o'tish</h1>
+          <p class="text-muted">Buyurtmalaringizni kuzatib borish uchun hisob yarating.</p>
+        </div>
+
+        {% if locked %}
+        <div class="alert alert-warning">
+          <i class="bi bi-shield-lock"></i> {{ message }}
+        </div>
+        {% endif %}
+
+        <div class="form-card">
+          <div>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% include 'includes/form_fields.html' %}
+              <button type="submit" class="btn btn-danger w-100 py-2">
+                <i class="bi bi-person-plus"></i> Ro'yxatdan o'tish
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <p class="text-center mt-3 mb-0">
+          Hisobingiz bormi? <a href="{% url 'clients:login' %}">Kirish</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
