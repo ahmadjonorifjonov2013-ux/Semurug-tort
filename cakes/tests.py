@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from testutils import ModelTestCase
 
-from .models import Category, Cake, Option
+from .models import Category, Option
 from .views import _filter_cakes
 
 

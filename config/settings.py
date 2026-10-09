@@ -74,6 +74,9 @@ INSTALLED_APPS = [
     'cakes',
     'orders',
     'reviews',
+
+    # Sayt ichidagi boshqaruv paneli
+    'panel',
 ]
 
 MIDDLEWARE = [
@@ -86,6 +89,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Saytni faqat ro'yxatdan o'tganlarga ochadi (kirish/register ochiq).
+    'core.middleware.RequireLoginMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -213,11 +219,26 @@ LOGIN_URL = 'clients:login'
 LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = 'core:home'
 
+# Saytni faqat ro'yxatdan o'tgan (kirgan) foydalanuvchilar ko'radi.
+# DJANGO_DEBUG qat'iy o'chirilgan bo'lsa ham ochiq qolmaydi —
+# sayt yopiq bo'lishi kerak bo'lsa True qoldiring.
+SITE_REQUIRE_LOGIN = os.environ.get(
+    'SITE_REQUIRE_LOGIN', 'True').lower() in ('true', '1', 'yes')
+
+# Boshqaruv paneli manzili (config/urls.py ham shundan foydalanadi).
+PANEL_URL_PREFIX = '/boshqaruv/'
+
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Django 6.1 da EMAIL eskirgan (Django 7.0 da o'chiriladi) — MAILERS ishlatiladi.
+# Lokal/preview da xabarlar konsolga chiqadi.
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    },
+}
 DEFAULT_FROM_EMAIL = 'noreply@semurog-tort.uz'
 
 

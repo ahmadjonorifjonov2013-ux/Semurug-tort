@@ -7,7 +7,9 @@ class CoreConfig(AppConfig):
     verbose_name = "Sayt sozlamalari"
 
     def ready(self):
-        import core.signals  # noqa: F401
+        from .signals import connect_signals
+
+        connect_signals()
 
         admin.site.site_header = "Semurg' TORT Markazi"
         admin.site.site_title = "Semurg' Tort Admin"

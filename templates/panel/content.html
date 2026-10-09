@@ -1,0 +1,155 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Sayt kontenti — boshqaruv paneli{% endblock %}
+{% block heading %}Sayt kontenti{% endblock %}
+{% block subheading %}
+<p class="text-muted mb-0">Bosh sahifa bannerlari, galereya va savol-javoblar.</p>
+{% endblock %}
+
+{% block content %}
+
+<div class="row g-3">
+  <div class="col-xl-6">
+    <div class="panel-card mb-3">
+      <div class="panel-card__head"><h2><i class="bi bi-easel me-1"></i> Bannerlar</h2></div>
+      <div class="panel-card__body">
+        <div class="panel-gallery mb-3">
+          {% for banner in banners %}
+          <div class="panel-gallery__item">
+            {% if banner.image %}<img src="{{ banner.image.url }}" alt="" loading="lazy">{% endif %}
+            <div class="panel-gallery__body">
+              <strong class="small">{{ banner.title }}</strong>
+              <div class="d-flex gap-1 flex-wrap mt-1">
+                <form method="post" action="{% url 'panel:content_flag' 'banner' banner.pk %}">
+                  {% csrf_token %}
+                  <button class="btn btn-sm {% if banner.is_active %}btn-outline-success{% else %}btn-outline-secondary{% endif %}" type="submit">
+                    {% if banner.is_active %}Faol{% else %}Yashirin{% endif %}
+                  </button>
+                </form>
+                <form method="post" action="{% url 'panel:banner_delete' banner.pk %}"
+                  onsubmit="return confirm('Banner o\'chirilsinmi?')">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <span class="text-muted">Banner yo'q.</span>
+          {% endfor %}
+        </div>
+
+        <form method="post" action="{% url 'panel:banner_save' %}" enctype="multipart/form-data" class="panel-form">
+          {% csrf_token %}
+          <h3 class="panel-subhead">Yangi banner</h3>
+          <div class="row g-2">
+            <div class="col-md-6">{{ banner_form.title }}</div>
+            <div class="col-md-6">{{ banner_form.image }}</div>
+            <div class="col-12">{{ banner_form.subtitle }}</div>
+            <div class="col-md-8">{{ banner_form.link }}</div>
+            <div class="col-md-4">{{ banner_form.order }}</div>
+            <div class="col-12 d-flex align-items-center gap-3">
+              <div class="form-check">
+                {{ banner_form.is_active }}
+                <label class="form-check-label" for="{{ banner_form.is_active.id_for_label }}">{{ banner_form.is_active.label }}</label>
+              </div>
+              <button class="btn btn-brand btn-sm" type="submit"><i class="bi bi-plus-lg me-1"></i>Qo'shish</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card__head"><h2><i class="bi bi-image me-1"></i> Galereya</h2></div>
+      <div class="panel-card__body">
+        <div class="panel-gallery mb-3">
+          {% for photo in photos %}
+          <div class="panel-gallery__item">
+            <img src="{{ photo.image.url }}" alt="" loading="lazy">
+            <form method="post" action="{% url 'panel:content_flag' 'photo' photo.pk %}">
+              {% csrf_token %}
+              <button class="btn btn-sm {% if photo.is_active %}btn-outline-success{% else %}btn-outline-secondary{% endif %}" type="submit">
+                {% if photo.is_active %}Faol{% else %}Yashirin{% endif %}
+              </button>
+            </form>
+            <form method="post" action="{% url 'panel:photo_delete' photo.pk %}"
+              onsubmit="return confirm('Rasm o\'chirilsinmi?')">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-danger" type="submit"><i class="bi bi-x-lg"></i></button>
+            </form>
+          </div>
+          {% empty %}
+          <span class="text-muted">Rasm yo'q.</span>
+          {% endfor %}
+        </div>
+
+        <form method="post" action="{% url 'panel:photo_save' %}" enctype="multipart/form-data" class="row g-2">
+          {% csrf_token %}
+          <div class="col-md-5">{{ photo_form.image }}</div>
+          <div class="col-md-5">{{ photo_form.caption }}</div>
+          <div class="col-md-2">{{ photo_form.order }}</div>
+          <div class="col-12 d-flex align-items-center gap-3">
+            <div class="form-check">
+              {{ photo_form.is_active }}
+              <label class="form-check-label" for="{{ photo_form.is_active.id_for_label }}">{{ photo_form.is_active.label }}</label>
+            </div>
+            <button class="btn btn-brand btn-sm" type="submit"><i class="bi bi-plus-lg me-1"></i>Qo'shish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-6">
+    <div class="panel-card">
+      <div class="panel-card__head"><h2><i class="bi bi-question-circle me-1"></i> Savol-javoblar</h2></div>
+      <div class="panel-card__body">
+        {% for faq in faqs %}
+        <div class="panel-faq">
+          <div class="d-flex justify-content-between gap-2 align-items-start">
+            <div>
+              <strong>{{ faq.question }}</strong>
+              <p class="small text-muted mb-1">{{ faq.answer|truncatechars:140 }}</p>
+            </div>
+            <div class="d-flex gap-1 flex-shrink-0">
+              <form method="post" action="{% url 'panel:content_flag' 'faq' faq.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-sm {% if faq.is_active %}btn-outline-success{% else %}btn-outline-secondary{% endif %}" type="submit">
+                  {% if faq.is_active %}Faol{% else %}Yashirin{% endif %}
+                </button>
+              </form>
+              <form method="post" action="{% url 'panel:faq_delete' faq.pk %}"
+                onsubmit="return confirm('Savol-javob o\'chirilsinmi?')">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">Savol-javob yo'q.</p>
+        {% endfor %}
+
+        <form method="post" action="{% url 'panel:faq_save' %}" class="panel-form">
+          {% csrf_token %}
+          <h3 class="panel-subhead">Yangi savol-javob</h3>
+          <div class="row g-2">
+            <div class="col-12">{{ faq_form.question }}</div>
+            <div class="col-12">{{ faq_form.answer }}</div>
+            <div class="col-md-4">{{ faq_form.order }}</div>
+            <div class="col-md-8 d-flex align-items-center gap-3">
+              <div class="form-check">
+                {{ faq_form.is_active }}
+                <label class="form-check-label" for="{{ faq_form.is_active.id_for_label }}">{{ faq_form.is_active.label }}</label>
+              </div>
+              <button class="btn btn-brand btn-sm" type="submit"><i class="bi bi-plus-lg me-1"></i>Qo'shish</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

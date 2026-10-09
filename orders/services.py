@@ -57,13 +57,16 @@ def _configured():
 
 
 def _admin_link(pk):
-    """Admin sahifasiga haqiqiy (localhost emas) havolani qaytaradi."""
+    """Boshqaruv panelidagi buyurtma sahifasiga haqiqiy havolani qaytaradi."""
     site_url = (getattr(settings, 'SITE_URL', '') or '').rstrip('/')
     if not site_url:
         return None
     if '127.0.0.1' in site_url or 'localhost' in site_url:
         return None
-    return f"{site_url}/admin/orders/order/{pk}/change/"
+    prefix = getattr(settings, 'PANEL_URL_PREFIX', '/boshqaruv/')
+    # `site_url` va prefiks o'rtasida `/` bo'lishi shart:
+    # "http://10.0.0.5:8800" + "/boshqaruv/" -> "http://10.0.0.5:8800/boshqaruv/buyurtmalar/7/"
+    return f"{site_url}/{prefix.strip('/')}/buyurtmalar/{pk}/"
 
 
 def _keyboard(pk):

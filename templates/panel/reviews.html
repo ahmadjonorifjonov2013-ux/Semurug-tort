@@ -1,0 +1,66 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Sharhlar — boshqaruv paneli{% endblock %}
+{% block heading %}Sharhlar{% endblock %}
+{% block subheading %}
+<p class="text-muted mb-0">Mijoz sharhlari — tasdiqlashdan keyin saytda chiqadi.</p>
+{% endblock %}
+
+{% block content %}
+
+<div class="panel-filters mb-3">
+  <div class="panel-tabs">
+    <a class="{% if status != 'all' and status != 'published' %}active{% endif %}" href="{% url 'panel:reviews' %}">
+      Nazoratda <span class="badge">{{ counts.pending }}</span>
+    </a>
+    <a class="{% if status == 'published' %}active{% endif %}" href="?status=published">Chiqarilgan</a>
+    <a class="{% if status == 'all' %}active{% endif %}" href="?status=all">
+      Barchasi <span class="badge">{{ counts.all }}</span>
+    </a>
+  </div>
+</div>
+
+<div class="panel-card">
+  <div class="panel-card__body">
+    {% for review in page.object_list %}
+    <div class="panel-faq {% if not review.is_published %}border-start border-3 border-warning{% endif %}">
+      <div class="d-flex justify-content-between gap-3 flex-wrap">
+        <div>
+          <strong>{{ review.author_name }}</strong>
+          {% if review.cake %}<span class="text-muted small">— {{ review.cake.name }}</span>{% endif %}
+          <span class="text-warning small ms-2">
+            {% for i in "12345"|make_list %}{% if forloop.counter <= review.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}{% endfor %}
+          </span>
+          <div class="small text-muted mt-1">{{ review.text|linebreaksbr }}</div>
+          <div class="small text-muted mt-1"><i class="bi bi-clock me-1"></i>{{ review.created_at|date:"d.m.Y H:i" }}</div>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+          {% if review.client %}
+          <a class="btn btn-sm btn-outline-secondary" href="tel:{{ review.client.phone }}" title="{{ review.client.phone }}">
+            <i class="bi bi-telephone"></i>
+          </a>
+          {% endif %}
+          <form method="post" action="{% url 'panel:review_publish' review.pk %}">
+            {% csrf_token %}
+            <button class="btn btn-sm {% if review.is_published %}btn-outline-secondary{% else %}btn-success{% endif %}" type="submit">
+              {% if review.is_published %}<i class="bi bi-eye-slash me-1"></i>Yashirish
+              {% else %}<i class="bi bi-check-lg me-1"></i>Saytga chiqarish{% endif %}
+            </button>
+          </form>
+          <form method="post" action="{% url 'panel:review_delete' review.pk %}"
+            onsubmit="return confirm('Sharh o\'chirilsinmi?')">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-muted mb-0">Sharh yo'q.</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% include 'panel/_pagination.html' %}
+
+{% endblock %}

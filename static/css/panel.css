@@ -1,0 +1,575 @@
+/* Boshqaruv paneli uchun uslublar (style.css dan keyin yuklanadi). */
+
+.panel-body {
+  min-height: 100vh;
+  background: var(--surface-2, #f7f5f3);
+}
+
+/* --- Yuqori panel (mobil) --- */
+.panel-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .5rem .75rem;
+  background: #2b1620;
+  color: #fff;
+}
+
+/* --- Yon menyu --- */
+.panel-menu {
+  --bs-offcanvas-width: 264px;
+  background: #2b1620;
+  color: #f7e9ee;
+}
+
+@media (min-width: 992px) {
+  .panel-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 264px;
+    z-index: 1030;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+}
+
+.panel-brand {
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.panel-brand a,
+.panel-brand__text strong,
+.panel-brand__text small {
+  color: #fff;
+}
+
+.panel-brand__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--bs-danger, #bb2455);
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.panel-brand__text strong {
+  display: block;
+  font-size: .95rem;
+  line-height: 1.2;
+}
+
+.panel-brand__text small {
+  display: block;
+  font-size: .72rem;
+  opacity: .65;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.panel-nav {
+  list-style: none;
+  margin: 0;
+  padding: .75rem .6rem;
+  flex: 1 1 auto;
+}
+
+.panel-nav a {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .55rem .7rem;
+  border-radius: .6rem;
+  color: rgba(255, 255, 255, .78);
+  text-decoration: none;
+  font-size: .92rem;
+  transition: background .15s ease, color .15s ease;
+}
+
+.panel-nav a:hover {
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+}
+
+.panel-nav a.active {
+  background: var(--bs-danger, #bb2455);
+  color: #fff;
+}
+
+.panel-menu__foot {
+  padding: .9rem 1.1rem 1.2rem;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+.panel-user {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: .6rem;
+}
+
+.panel-user__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .14);
+  font-weight: 700;
+}
+
+.panel-user strong {
+  display: block;
+  font-size: .85rem;
+  color: #fff;
+}
+
+.panel-user small {
+  display: block;
+  font-size: .72rem;
+  opacity: .6;
+}
+
+/* --- Asosiy maydon --- */
+.panel-main {
+  padding: 1.1rem 1rem 2.5rem;
+}
+
+@media (min-width: 992px) {
+  .panel-main {
+    margin-left: 264px;
+    padding: 1.4rem 1.8rem 3rem;
+  }
+}
+
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.panel-head__titles {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.panel-head__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-left: auto;
+}
+
+.panel-title {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+@media (max-width: 991.98px) {
+  .panel-head { gap: .6rem; margin-bottom: .9rem; }
+  .panel-title { font-size: 1.3rem; }
+  .panel-head__titles { flex: 1 1 100%; }
+  .panel-head__actions {
+    margin-left: 0;
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: .2rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .panel-head__actions::-webkit-scrollbar { display: none; }
+  .panel-head__actions .btn { flex: 0 0 auto; }
+}
+
+.panel-flash {
+  margin-bottom: 1rem;
+}
+
+.panel-subhead {
+  margin: 1rem 0 .5rem;
+  font-size: .85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-soft, #6c757d);
+}
+
+/* --- Kartalar --- */
+.panel-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #e7e1dd);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.panel-card__head {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .85rem 1.1rem;
+  border-bottom: 1px solid var(--line, #e7e1dd);
+  background: var(--surface-2, #faf8f7);
+}
+
+.panel-card__head h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.panel-card__body {
+  padding: 1.1rem;
+}
+
+.panel-empty {
+  padding: 1.6rem 1.1rem;
+  text-align: center;
+}
+
+/* --- Statistika --- */
+.panel-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: .8rem;
+  margin-bottom: 1rem;
+}
+
+.panel-stat {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  padding: 1rem;
+  border: 1px solid var(--line, #e7e1dd);
+  border-radius: 1rem;
+  background: var(--surface, #fff);
+  color: inherit;
+  text-decoration: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.panel-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 .6rem 1.4rem rgba(0, 0, 0, .08);
+}
+
+.panel-stat i {
+  font-size: 1.1rem;
+  opacity: .8;
+}
+
+.panel-stat__value {
+  font-size: clamp(1.15rem, 4.5vw, 1.5rem);
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.panel-stat__label {
+  font-size: .8rem;
+  color: var(--text-soft, #6c757d);
+}
+
+.panel-stat--info i { color: #1c7ed6; }
+.panel-stat--blue i { color: #0c8599; }
+.panel-stat--amber i { color: #e8590c; }
+.panel-stat--green i { color: #2f9e44; }
+.panel-stat--violet i { color: #7048e8; }
+.panel-stat--teal i { color: #0c8599; }
+
+/* --- Filtrlar --- */
+.panel-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem;
+}
+
+.panel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+
+.panel-tabs a {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem .7rem;
+  border: 1px solid var(--line, #e7e1dd);
+  border-radius: 999px;
+  background: var(--surface, #fff);
+  color: inherit;
+  font-size: .85rem;
+  text-decoration: none;
+}
+
+.panel-tabs a.active {
+  background: var(--bs-danger, #bb2455);
+  border-color: var(--bs-danger, #bb2455);
+  color: #fff;
+}
+
+.panel-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-left: auto;
+}
+
+.panel-search .form-control,
+.panel-search .form-select {
+  min-width: 180px;
+}
+
+/* --- Jadval / ro'yxat qismlari --- */
+.panel-mini {
+  position: relative;
+  padding-bottom: .8rem;
+  margin-bottom: .8rem;
+  border-bottom: 1px dashed var(--line, #e7e1dd);
+}
+
+.panel-mini:last-child {
+  border-bottom: 0;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.panel-mini__time {
+  font-size: .72rem;
+  color: var(--text-soft, #6c757d);
+}
+
+.panel-faq {
+  padding: .8rem 0;
+  border-bottom: 1px dashed var(--line, #e7e1dd);
+}
+
+.panel-faq:last-of-type {
+  border-bottom: 0;
+}
+
+.panel-form {
+  padding-top: .75rem;
+  border-top: 1px dashed var(--line, #e7e1dd);
+}
+
+.panel-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.panel-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: .2rem .5rem;
+  border-radius: 999px;
+  background: var(--surface-2, #f1eef0);
+  font-size: .82rem;
+}
+
+.panel-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: .6rem;
+  object-fit: cover;
+  background: var(--surface-2, #f1eef0);
+}
+
+.panel-thumb--empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-soft, #6c757d);
+}
+
+.panel-preview {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: .8rem;
+}
+
+.panel-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: .6rem;
+}
+
+.panel-gallery__item {
+  position: relative;
+  border: 1px solid var(--line, #e7e1dd);
+  border-radius: .7rem;
+  overflow: hidden;
+  background: var(--surface-2, #faf8f7);
+}
+
+.panel-gallery__item img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+}
+
+.panel-gallery__item .btn {
+  position: absolute;
+  top: .25rem;
+  right: .25rem;
+  padding: .1rem .3rem;
+  font-size: .7rem;
+  line-height: 1.2;
+}
+
+.panel-gallery__body {
+  padding: .4rem .5rem;
+}
+
+.panel-note {
+  margin-top: .8rem;
+  padding: .6rem .8rem;
+  border-radius: .6rem;
+  background: var(--surface-2, #faf8f7);
+  font-size: .85rem;
+}
+
+.panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--line, #e7e1dd);
+}
+
+/* --- Holat vaqti chizig'i --- */
+.panel-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel-timeline__item {
+  position: relative;
+  padding: .3rem 0 .3rem 1.5rem;
+  font-size: .88rem;
+  color: var(--text-soft, #6c757d);
+}
+
+.panel-timeline__dot {
+  position: absolute;
+  left: .3rem;
+  top: .7rem;
+  width: .55rem;
+  height: .55rem;
+  border-radius: 50%;
+  background: var(--line, #cfc6c1);
+}
+
+.panel-timeline__item--done { color: inherit; }
+.panel-timeline__item--done .panel-timeline__dot { background: #2f9e44; }
+.panel-timeline__item--current { font-weight: 700; color: inherit; }
+.panel-timeline__item--current .panel-timeline__dot { background: #e8590c; }
+.panel-timeline__item--cancelled { color: #c92a2a; }
+.panel-timeline__item--cancelled .panel-timeline__dot { background: #c92a2a; }
+
+/* --- Sahifalash --- */
+.panel-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  margin-top: 1rem;
+}
+
+/* --- Panel logini --- */
+.panel-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+  background: radial-gradient(1000px 500px at 50% -10%, #3a1c28, #1c1016);
+}
+
+.panel-login__card {
+  width: 100%;
+  max-width: 400px;
+  padding: 1.8rem 1.6rem;
+  border-radius: 1.2rem;
+  background: var(--surface, #fff);
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, .35);
+}
+
+.panel-login__mark {
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+}
+/* ---------------------------------------------------------------------------
+   Mobil (telefon) qlanishi — chap menyu offcanvas, maydon kengligi kichik
+   --------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .panel-topbar {
+    padding: .6rem .75rem calc(.6rem + env(safe-area-inset-bottom, 0px));
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+  }
+
+  .panel-topbar strong {
+    font-size: .95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .panel-main {
+    padding: .9rem .75rem calc(2rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Menyoda bosish uchun qulay qatorlar */
+  .panel-nav a { padding: .8rem .75rem; font-size: 1rem; }
+  .panel-nav { padding: .5rem .5rem .75rem; }
+
+  /* Statistika kartalari telefonda 2 ustun bo'lib, sahifa uzun bo'lmaydi */
+  .panel-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .6rem;
+  }
+  .panel-stat { padding: .75rem .8rem; }
+  .panel-stat__label { font-size: .75rem; }
+
+  .panel-card__body { padding: .85rem .8rem; }
+  .panel-card__head { padding: .75rem .8rem; gap: .5rem; flex-wrap: wrap; }
+  .panel-card__head h2 { font-size: .95rem; }
+
+  /* Filtr tugmalari qatorini gorizontal sursa ham bo'ladi */
+  .panel-tabs a { padding: .5rem .8rem; font-size: .9rem; }
+  .panel-search { margin-left: 0; width: 100%; }
+  .panel-search .form-control,
+  .panel-search .form-select { min-width: 0; flex: 1 1 140px; }
+
+  .panel-title { overflow-wrap: anywhere; }
+}
+
+/* Telefonra kichik (≤480px) — stat kartalarda maydon yetarligi uchun */
+@media (max-width: 420px) {
+  .panel-stats { gap: .5rem; }
+  .panel-stat { padding: .7rem .7rem; border-radius: .85rem; }
+  .panel-stat i { font-size: 1rem; }
+}

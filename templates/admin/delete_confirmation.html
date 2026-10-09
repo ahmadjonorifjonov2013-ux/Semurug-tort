@@ -1,0 +1,170 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_filters %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% static 'admin/js/cancel.js' %}" defer></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} delete-confirmation{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumbs">
+  <li><a href="{% url 'admin:index' %}">Bosh sahifa</a></li>
+  <li><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a></li>
+  <li><a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a></li>
+  <li><a href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}">{{ object|to_object_display_value|truncatewords:"18" }}</a></li>
+  <li aria-current="page">O'chirish</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div class="delete-page">
+
+  {% if perms_lacking %}
+  <div class="delete-card delete-card--blocked">
+    <div class="delete-card__head">
+      <span class="delete-card__icon">&#128274;</span>
+      <div>
+        <h1 class="delete-card__title">Ruxsat yetishmaydi</h1>
+        <p class="delete-card__subtitle">
+          {{ object_name }} &ldquo;{{ escaped_object }}&rdquo; ni o'chirish uchun
+          quyidagi obyekt turlarini o'chirish huquqi yo'q:
+        </p>
+      </div>
+    </div>
+    <ul id="deleted-objects" class="delete-list">
+      {{ perms_lacking|truncated_unordered_list:delete_confirmation_max_display }}
+    </ul>
+    <div class="delete-card__actions">
+      <a role="button" href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}" class="button">
+        Orqaga qaytish
+      </a>
+    </div>
+  </div>
+
+  {% elif protected %}
+  <div class="delete-card delete-card--blocked">
+    <div class="delete-card__head">
+      <span class="delete-card__icon">&#128274;</span>
+      <div>
+        <h1 class="delete-card__title">O'chirib bo'lmaydi</h1>
+        <p class="delete-card__subtitle">
+          {{ object_name }} &ldquo;{{ escaped_object }}&rdquo; ni butunlay o'chirish
+          uchun quyidagi bog'langan obyektlar ham o'chirilishi kerak — ularga tegmish mumkin emas:
+        </p>
+        <span class="delete-target">
+          <span class="delete-target__label">{{ opts.verbose_name|capfirst }}</span>
+          <span class="delete-target__name">{{ escaped_object }}</span>
+        </span>
+      </div>
+    </div>
+    <ul id="deleted-objects" class="delete-list">
+      {{ protected|truncated_unordered_list:delete_confirmation_max_display }}
+    </ul>
+
+    {% if show_archive_option %}
+    <div class="delete-alternative">
+      <h2 class="delete-alternative__title">Xavfsizroq yo'l: arxivlash</h2>
+      <p class="delete-alternative__text">
+        Tort <strong>o'chirilmaydi</strong> — faqat saytdan berkitiladi.
+        Ma'lumot va buyurtma tarixi butun qoladi, keyinchalik qayta tiklash mumkin.
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="{{ archive_param }}" value="yes">
+        <input type="submit" class="button button--archive"
+               value="{% if archive_is_archived %}Arxivdan chiqarish{% else %}Arxivlash{% endif %}">
+        <a role="button" href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}" class="button cancel-link">
+          Bekor qilish
+        </a>
+      </form>
+    </div>
+    {% endif %}
+
+    <div class="delete-card__actions">
+      <a role="button" href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}" class="button">
+        Orqaga qaytish
+      </a>
+    </div>
+  </div>
+
+  {% else %}
+  {% block delete_confirm %}
+  <div class="delete-card">
+
+    <div class="delete-card__head">
+      <span class="delete-card__icon">&#128465;</span>
+      <div>
+        <h1 class="delete-card__title">Rostdan ham o'chirmoqchimisiz?</h1>
+        <p class="delete-card__subtitle">
+          Bu amalni bekor qilib bo'lmaydi. Quyidagi obyekt butunlay o'chirib yuboriladi:
+        </p>
+        <span class="delete-target">
+          <span class="delete-target__label">{{ opts.verbose_name|capfirst }}</span>
+          <span class="delete-target__name">{{ escaped_object }}</span>
+        </span>
+      </div>
+    </div>
+
+    {% if model_count %}
+    <div class="delete-summary">
+      <h2 class="delete-summary__title">Xulosa</h2>
+      <ul class="delete-summary__grid">
+        {% for model_name, object_count in model_count %}
+        <li class="delete-summary__item">
+          <span class="delete-summary__count">{{ object_count }}</span>
+          <span class="delete-summary__name">{{ model_name|capfirst }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if delete_confirmation_max_display is None or delete_confirmation_max_display > 0 %}
+    <div class="delete-objects">
+      <h2 class="delete-objects__title">O'chiriladigan obyektlar</h2>
+      <ul id="deleted-objects" class="delete-list">
+        {{ deleted_objects|truncated_unordered_list:delete_confirmation_max_display }}
+      </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" class="delete-form" data-delete-form>
+      {% csrf_token %}
+      <input type="hidden" name="post" value="yes">
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+      <p class="delete-form__hint">
+        Agar bu xato bo'lsa, tugmani ikki marta bosishdan saqlaning.
+      </p>
+
+      <div class="delete-form__actions">
+        <input type="submit" class="button button--danger" value="Ha, o'chirish">
+        <a role="button" href="#" class="button cancel-link">Bekor qilish</a>
+      </div>
+    </form>
+
+    {% if show_archive_option %}
+    <div class="delete-alternative">
+      <h2 class="delete-alternative__title">Xavfsizroq yo'l: arxivlash</h2>
+      <p class="delete-alternative__text">
+        Tortni o'chirmasdan <strong>faqat saytdan berkitish</strong> ham mumkin —
+        ma'lumot saqlanadi, keyinchalik qayta tiklash oson.
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="{{ archive_param }}" value="yes">
+        <input type="submit" class="button button--archive"
+               value="{% if archive_is_archived %}Arxivdan chiqarish{% else %}Arxivlash{% endif %}">
+      </form>
+    </div>
+    {% endif %}
+
+  </div>
+  {% endblock %}
+  {% endif %}
+
+</div>
+{% endblock content %}

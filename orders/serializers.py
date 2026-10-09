@@ -129,8 +129,6 @@ class CouponCheckSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=20)
 
     def validate(self, attrs):
-        from django.utils import timezone
-
         code = attrs['code'].strip().upper()
         promo = PromoCode.objects.filter(code=code, is_active=True).first()
         if not promo:

@@ -1,0 +1,158 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}{% if cake %}{{ cake.name }} — tahrirlash{% else %}Yangi tort{% endif %}{% endblock %}
+{% block heading %}{% if cake %}Tortni tahrlash{% else %}Yangi tort qo'shish{% endif %}{% endblock %}
+{% block subheading %}
+<p class="text-muted mb-0">Rasmlar yuklangandan keyin tort saytda ko'rinadi.</p>
+{% endblock %}
+
+{% block head_actions %}
+<a class="btn btn-sm btn-outline-secondary" href="{% url 'panel:cakes' %}">
+  <i class="bi bi-arrow-left"></i> Ro'yxat
+</a>
+{% endblock %}
+
+{% block content %}
+
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+
+  <div class="row g-3">
+    <div class="col-xl-8">
+      <div class="panel-card mb-3">
+        <div class="panel-card__head"><h2><i class="bi bi-info-circle me-1"></i> Asosiy ma'lumot</h2></div>
+        <div class="panel-card__body">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }} *</label>
+              {{ form.name }}
+              {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.category.id_for_label }}">{{ form.category.label }} *</label>
+              {{ form.category }}
+              {% for error in form.category.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }} *</label>
+              {{ form.description }}
+              {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.price.id_for_label }}">{{ form.price.label }} *</label>
+              {{ form.price }}
+              {% for error in form.price.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.old_price.id_for_label }}">{{ form.old_price.label }}</label>
+              {{ form.old_price }}
+              {% for error in form.old_price.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.weight_gram.id_for_label }}">{{ form.weight_gram.label }}</label>
+              {{ form.weight_gram }}
+            </div>
+            <div class="col-md-8">
+              <label class="form-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+              {{ form.slug }}
+              <div class="form-text">{{ form.slug.help_text }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-card mb-3">
+        <div class="panel-card__head"><h2><i class="bi bi-sliders me-1"></i> Variantlar va allergenlar</h2></div>
+        <div class="panel-card__body">
+          <div class="row g-3">
+            <div class="col-md-7">
+              <label class="form-label" for="{{ form.options.id_for_label }}">{{ form.options.label }}</label>
+              {{ form.options }}
+              <div class="form-text">{{ form.options.help_text }}</div>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label" for="{{ form.allergens.id_for_label }}">{{ form.allergens.label }}</label>
+              {{ form.allergens }}
+            </div>
+          </div>
+          <p class="small text-muted mb-0 mt-2">
+            Yangi variant yoki allergen qo'shish uchun
+            <a href="{% url 'panel:catalog' %}">Katalog</a> sahifasidan foydalaning.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4">
+      <div class="panel-card mb-3">
+        <div class="panel-card__head"><h2><i class="bi bi-image me-1"></i> Rasmlar</h2></div>
+        <div class="panel-card__body">
+          <label class="form-label" for="{{ form.main_image.id_for_label }}">{{ form.main_image.label }} *</label>
+          {{ form.main_image }}
+          {% for error in form.main_image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          {% if cake.main_image %}
+          <img src="{{ cake.main_image.url }}" alt="" class="panel-preview mt-2">
+          {% endif %}
+
+          <hr>
+
+          <label class="form-label" for="{{ form.gallery_images.id_for_label }}">{{ form.gallery_images.label }}</label>
+          {{ form.gallery_images }}
+          {% if gallery %}
+          <div class="panel-gallery mt-2">
+            {% for image in gallery %}
+            <div class="panel-gallery__item">
+              <img src="{{ image.image.url }}" alt="" loading="lazy">
+              <button class="btn btn-sm btn-danger" type="submit"
+                form="delete-image-{{ image.pk }}" title="O'chirish">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-card__head"><h2><i class="bi bi-toggles me-1"></i> Holat</h2></div>
+        <div class="panel-card__body">
+          <div class="form-check form-switch mb-2">
+            {{ form.is_active }}
+            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+          </div>
+          <div class="form-check form-switch mb-2">
+            {{ form.is_available }}
+            <label class="form-check-label" for="{{ form.is_available.id_for_label }}">{{ form.is_available.label }}</label>
+          </div>
+          <div class="form-check form-switch mb-3">
+            {{ form.is_preorder }}
+            <label class="form-check-label" for="{{ form.is_preorder.id_for_label }}">{{ form.is_preorder.label }}</label>
+          </div>
+          <label class="form-label" for="{{ form.min_order_days.id_for_label }}">{{ form.min_order_days.label }}</label>
+          {{ form.min_order_days }}
+
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger mt-3 mb-0">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
+
+          <button class="btn btn-brand w-100 mt-3" type="submit">
+            <i class="bi bi-check-lg me-1"></i>
+            {% if cake %}Saqlash{% else %}Tortni qo'shish{% endif %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% for image in gallery %}
+<form id="delete-image-{{ image.pk }}" method="post" action="{% url 'panel:gallery_image_delete' image.pk %}"
+  class="d-inline" onsubmit="return confirm('Rasm o\'chirilsinmi?')">
+  {% csrf_token %}
+</form>
+{% endfor %}
+
+{% endblock %}

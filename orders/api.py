@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -48,9 +47,13 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class CartView(APIView):
-    """Savat: GET holati, POST qo'shish."""
+    """Savat: GET holati, POST qo'shish.
+
+    Faqat tizimga kigan mijoz uchun — saytdagi qoidaga mos.
+    """
 
     throttle_scope = 'cart'
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         rows, total = cart.rows(request)
@@ -80,6 +83,9 @@ class CartView(APIView):
 
 
 class CartItemView(APIView):
+    throttle_scope = 'cart'
+    permission_classes = [IsAuthenticated]
+
     def patch(self, request, pk):
         quantity = request.data.get('quantity', 1)
         try:
@@ -103,9 +109,13 @@ class CartItemView(APIView):
 
 
 class CheckoutAPIView(APIView):
-    """Savatdagi tortlarni buyurtmaga aylantiradi."""
+    """Savatdagi tortlarni buyurtmaga aylantiradi.
+
+    Ro'yxatdan o'tgan mijoz majburiy — buyurtma uning akkauntiga bog'lanadi.
+    """
 
     throttle_scope = 'checkout'
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         rows, total = cart.rows(request)
@@ -119,16 +129,22 @@ class CheckoutAPIView(APIView):
 
         with transaction.atomic():
             from clients.models import Client
-            client = Client.objects.filter(phone=data['phone']).first()
+            user = request.user if request.user.is_authenticated else None
+            client = (Client.objects.filter(user=user).first()
+                      if user else None)
+            client = client or Client.objects.filter(phone=data['phone']).first()
             if client:
                 client.full_name = data['name']
-                client.save(update_fields=['full_name'])
+                if user and client.user_id is None:
+                    client.user = user
+                client.save(update_fields=['full_name', 'user'])
             else:
                 client = Client.objects.create(
                     phone=data['phone'],
                     full_name=data['name'],
                     telegram=data.get('telegram', ''),
                     address=data['delivery_address'],
+                    user=user,
                 )
 
             order = Order.objects.create(

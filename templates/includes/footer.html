@@ -79,8 +79,9 @@
         <a href="{% url 'core:faq' %}">Yordam</a>
         {% if user.is_authenticated %}
         <a href="{% url 'clients:profile' %}">Profil</a>
-        {% else %}
-        <a href="{% url 'clients:login' %}">Kirish</a>
+        {% endif %}
+        {% if user.is_staff %}
+        <a href="{% url 'panel:dashboard' %}">Boshqaruv paneli</a>
         {% endif %}
       </span>
     </div>

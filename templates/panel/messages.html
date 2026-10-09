@@ -1,0 +1,65 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Xabarlar — boshqaruv paneli{% endblock %}
+{% block heading %}Xabarlar{% endblock %}
+{% block subheading %}
+<p class="text-muted mb-0">Aloqa formasi orqali kelgan xabarlar.</p>
+{% endblock %}
+
+{% block content %}
+
+<div class="panel-filters mb-3">
+  <div class="panel-tabs">
+    <a class="{% if status != 'all' and status != 'handled' %}active{% endif %}" href="{% url 'panel:messages' %}">
+      Yangi <span class="badge">{{ counts.new }}</span>
+    </a>
+    <a class="{% if status == 'handled' %}active{% endif %}" href="?status=handled">Ko'rib chiqilgan</a>
+    <a class="{% if status == 'all' %}active{% endif %}" href="?status=all">
+      Barchasi <span class="badge">{{ counts.all }}</span>
+    </a>
+  </div>
+</div>
+
+<div class="panel-card">
+  <div class="panel-card__body">
+    {% for msg in page.object_list %}
+    <div class="panel-faq {% if not msg.is_handled %}border-start border-3 border-info{% endif %}">
+      <div class="d-flex justify-content-between gap-3 flex-wrap">
+        <div>
+          <strong>{{ msg.name }}</strong>
+          <a href="tel:{{ msg.phone }}" class="panel-phone ms-2">{{ msg.phone }}</a>
+          <div class="small text-muted mt-1">{{ msg.message|linebreaksbr }}</div>
+          <div class="small text-muted mt-1">
+            <i class="bi bi-clock me-1"></i>{{ msg.created_at|date:"d.m.Y H:i" }}
+            {% if msg.is_handled %}<span class="badge bg-success ms-2">ko'rib chiqilgan</span>{% endif %}
+          </div>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+          <a class="btn btn-sm btn-outline-secondary" href="https://t.me/share/url?url=&text=Assalomu%20alaykum%2C%20{{ msg.name|urlencode }}%20(kiritgan)%20sayt%20haqida%20so%27rayapiz." target="_blank" rel="noopener"
+            title="Telegram orqali javoblash">
+            <i class="bi bi-telegram"></i>
+          </a>
+          <form method="post" action="{% url 'panel:message_handle' msg.pk %}">
+            {% csrf_token %}
+            <button class="btn btn-sm {% if msg.is_handled %}btn-outline-secondary{% else %}btn-success{% endif %}" type="submit">
+              {% if msg.is_handled %}<i class="bi bi-arrow-counterclockwise me-1"></i>Qaytarish
+              {% else %}<i class="bi bi-check-lg me-1"></i>Ko'rib chiqdim{% endif %}
+            </button>
+          </form>
+          <form method="post" action="{% url 'panel:message_delete' msg.pk %}"
+            onsubmit="return confirm('Xabar o\'chirilsinmi?')">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-muted mb-0">Xabar yo'q.</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% include 'panel/_pagination.html' %}
+
+{% endblock %}

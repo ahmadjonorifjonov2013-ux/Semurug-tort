@@ -4,10 +4,36 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from core.ratelimit import rate_limit, reset_rate_limit
+from panel.decorators import SESSION_KEY
 
 from .models import Client
 from .forms import (ClientRegistrationForm, ClientLoginForm,
                     ClientProfileForm, clean_phone_value)
+
+
+def _free_phone(user):
+    """Client yaratish uchun unikal telefon raqami.
+
+    Profili yo'q foydalanuvchi saytga kirganda Client qatori avtomatik
+    yaratiladi. Telefon esa unique — agar raqam band bo'lsa (masalan,
+    boshqa akkaunt allaqachon `+99800000000` ni olgan), 500 xato chiqmasligi
+    kerak. Shuning uchun 00 bilan boshlangan vaqtinchalik raqam tanlanadi
+    (haqiqiy raqamlar 90/93/94/95/97/99 bilan boshlanadi).
+    """
+
+    def variants():
+        if user.username.isdigit() and len(user.username) == 9:
+            yield f"+998{user.username}"
+        seed = (user.pk or 0) % 10_000_000
+        for i in range(1000):
+            yield f"+99800{(seed + i) % 10_000_000:07d}"
+
+    taken = set(Client.objects.values_list('phone', flat=True))
+    for phone in variants():
+        if phone not in taken:
+            return phone
+    # Amalda yetib qolmaydi: 1000 ta variant va faqat bitta foydalanuvchi.
+    return "+99800000001"
 
 
 def _client_for(user):
@@ -15,12 +41,10 @@ def _client_for(user):
     client = Client.objects.filter(user=user).first()
     if client:
         return client
-    phone = f"+998{user.username}" if user.username.isdigit() \
-        and len(user.username) == 9 else "+99800000000"
     return Client.objects.create(
         user=user,
         full_name=user.get_full_name() or user.username,
-        phone=phone,
+        phone=_free_phone(user),
         email=user.email,
     )
 
@@ -57,10 +81,20 @@ def register(request):
 def client_login(request):
     form = ClientLoginForm(request, request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        login(request, form.get_user())
+        user = form.get_user()
+        login(request, user)
         reset_rate_limit(request, 'login')
+
+        if user.is_staff:
+            # Administrator sayt loginidan kirdi — panelga qayta login
+            # so'ralmaydi, shu yerda panel belgisi qo'yiladi.
+            request.session[SESSION_KEY] = user.pk
+            return redirect('panel:dashboard')
+
         next_url = request.GET.get('next') or request.POST.get('next')
-        return redirect(next_url or 'core:home')
+        if next_url and next_url.startswith('/'):
+            return redirect(next_url)
+        return redirect('core:home')
     return render(request, 'clients/login.html',
                   {'form': form, 'next': request.GET.get('next', '')})
 

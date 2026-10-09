@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
 from testutils import ModelTestCase, image_file
-from cakes.models import Cake, Category, Option
+from cakes.models import Cake, Option
 from clients.models import Client
 from core.models import FAQ, SiteSettings
 from orders.models import Order, OrderItem
@@ -83,6 +83,20 @@ class CategoryAPITests(BaseAPITest):
 
 
 class CartAPITests(BaseAPITest):
+    """Savat va buyurtma — faqat kigan mijoz uchun."""
+
+    def setUp(self):
+        super().setUp()
+        User.objects.create_user(username='ali', password='YangiParol!2026')
+        self.api.login(username='ali', password='YangiParol!2026')
+
+    def test_cart_needs_login(self):
+        anon = APIClient()
+        response = anon.get('/api/cart/')
+        self.assertEqual(response.status_code, 401)
+        response = anon.post('/api/checkout/', {}, format='json')
+        self.assertEqual(response.status_code, 401)
+
     def test_add_to_cart(self):
         response = self.api.post('/api/cart/', {
             'cake': self.cake.pk, 'quantity': 2,

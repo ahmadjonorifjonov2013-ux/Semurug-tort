@@ -1,7 +1,5 @@
 """URL configuration for config project."""
 
-import re
-
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
@@ -44,6 +42,9 @@ urlpatterns = [
     path('api/cart/<int:pk>/', CartItemView.as_view(), name='api_cart_item'),
     path('api/checkout/', CheckoutAPIView.as_view(), name='api_checkout'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    # Sayt ichidagi boshqaruv paneli (alohida admin login bilan)
+    path(settings.PANEL_URL_PREFIX.lstrip('/'), include('panel.urls')),
 
     # Sayt
     path('', include('core.urls')),

@@ -1,0 +1,146 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Boshqaruv paneli{% endblock %}
+{% block heading %}Salom, {{ user.get_full_name|default:user.username }}!{% endblock %}
+{% block subheading %}
+<p class="text-muted mb-0">{{ today|date:"d.m.Y" }} — saytdagi barcha buyurtma va sorovlar shu yerde.</p>
+{% endblock %}
+
+{% block head_actions %}
+<a class="btn btn-sm btn-brand" href="{% url 'panel:cake_create' %}">
+  <i class="bi bi-plus-lg"></i> Tort qo'shish
+</a>
+{% endblock %}
+
+{% block content %}
+
+<section class="panel-stats">
+  <a class="panel-stat panel-stat--info" href="{% url 'panel:orders' %}?status=new">
+    <i class="bi bi-bag-plus"></i>
+    <span class="panel-stat__value">{{ stats.new_orders }}</span>
+    <span class="panel-stat__label">Yangi buyurtma</span>
+  </a>
+  <a class="panel-stat panel-stat--blue" href="{% url 'panel:orders' %}">
+    <i class="bi bi-calendar-day"></i>
+    <span class="panel-stat__value">{{ stats.today_orders }}</span>
+    <span class="panel-stat__label">Bugungi</span>
+  </a>
+  <a class="panel-stat panel-stat--amber" href="{% url 'panel:orders' %}">
+    <i class="bi bi-hourglass-split"></i>
+    <span class="panel-stat__value">{{ stats.active_orders }}</span>
+    <span class="panel-stat__label">Jarayonda</span>
+  </a>
+  <a class="panel-stat panel-stat--green" href="{% url 'panel:orders' %}?status=delivered">
+    <i class="bi bi-cash-coin"></i>
+    <span class="panel-stat__value">{{ stats.income|floatformat:"-2" }}</span>
+    <span class="panel-stat__label">Yetkazilgan summa (so'm)</span>
+  </a>
+  <a class="panel-stat panel-stat--violet" href="{% url 'panel:cakes' %}">
+    <i class="bi bi-cake2"></i>
+    <span class="panel-stat__value">{{ stats.cakes }}</span>
+    <span class="panel-stat__label">Saytdagi tort ({{ stats.archived_cakes }} arxiv)</span>
+  </a>
+  <a class="panel-stat panel-stat--teal" href="{% url 'panel:clients' %}">
+    <i class="bi bi-people"></i>
+    <span class="panel-stat__value">{{ stats.clients }}</span>
+    <span class="panel-stat__label">Mijoz</span>
+  </a>
+</section>
+
+<div class="row g-3">
+  <div class="col-xl-8">
+    <div class="panel-card">
+      <div class="panel-card__head">
+        <h2><i class="bi bi-bag-check me-1"></i> So'nggi buyurtmalar</h2>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'panel:orders' %}">Barchasi</a>
+      </div>
+      <div class="panel-card__body p-0">
+        {% if recent_orders %}
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>№</th>
+                <th>Mijoz</th>
+                <th>Telefon</th>
+                <th>Yetkazish</th>
+                <th class="text-end">Summa</th>
+                <th>Holat</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for order in recent_orders %}
+              <tr>
+                <td class="fw-bold">#{{ order.pk }}</td>
+                <td>{{ order.client.full_name }}</td>
+                <td>
+                  <a href="tel:{{ order.client.phone }}">{{ order.client.phone }}</a>
+                </td>
+                <td>{{ order.delivery_date|date:"d.m" }}{% if order.delivery_time %} {{ order.delivery_time|time:"H:i" }}{% endif %}</td>
+                <td class="text-end fw-semibold">{{ order.total_price|floatformat:"-2" }}</td>
+                <td>{% include 'includes/order_status_badge.html' with order=order %}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-brand" href="{% url 'panel:order_detail' order.pk %}">Ochish</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted panel-empty mb-0">Hali buyurtma yo'q.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    <div class="panel-card mb-3">
+      <div class="panel-card__head">
+        <h2><i class="bi bi-envelope me-1"></i> Yangi xabarlar ({{ stats.new_messages }})</h2>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'panel:messages' %}">Barchasi</a>
+      </div>
+      <div class="panel-card__body">
+        {% for msg in messages_list %}
+        <div class="panel-mini">
+          <strong>{{ msg.name }}</strong>
+          <a href="tel:{{ msg.phone }}" class="d-block small">{{ msg.phone }}</a>
+          <p class="small mb-0 text-muted">{{ msg.message|truncatechars:80 }}</p>
+          <span class="panel-mini__time">{{ msg.created_at|date:"d.m.Y H:i" }}</span>
+        </div>
+        {% empty %}
+        <p class="text-muted mb-0">Yangi xabar yo'q.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card__head">
+        <h2><i class="bi bi-star me-1"></i> Nazoratdagi sharhlar ({{ stats.pending_reviews }})</h2>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'panel:reviews' %}">Barchasi</a>
+      </div>
+      <div class="panel-card__body">
+        {% for review in reviews_list %}
+        <div class="panel-mini">
+          <strong>{{ review.author_name }}</strong>
+          <span class="text-warning small">
+            {% for i in "12345"|make_list %}{% if forloop.counter <= review.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}{% endfor %}
+          </span>
+          <p class="small mb-0 text-muted">{{ review.text|truncatechars:90 }}</p>
+          <form method="post" action="{% url 'panel:review_publish' review.pk %}" class="mt-1">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-success" type="submit">
+              <i class="bi bi-check-lg"></i> Chiqarish
+            </button>
+          </form>
+        </div>
+        {% empty %}
+        <p class="text-muted mb-0">Nazoratda sharh yo'q.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

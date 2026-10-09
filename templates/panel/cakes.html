@@ -1,0 +1,137 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Tortlar — boshqaruv paneli{% endblock %}
+{% block heading %}Tortlar{% endblock %}
+{% block subheading %}
+<p class="text-muted mb-0">Yangi tort qo'shish, narxini va mavjudligini o'zgartirish.</p>
+{% endblock %}
+
+{% block head_actions %}
+<a class="btn btn-sm btn-brand" href="{% url 'panel:cake_create' %}">
+  <i class="bi bi-plus-lg"></i> Yangi tort
+</a>
+{% endblock %}
+
+{% block content %}
+
+<form class="panel-filters mb-3" method="get">
+  <div class="panel-tabs">
+    <a class="{% if show == 'active' %}active{% endif %}" href="?show=active">
+      Saytda <span class="badge">{{ counts.active }}</span>
+    </a>
+    <a class="{% if show == 'archived' %}active{% endif %}" href="?show=archived">
+      Arxiv <span class="badge">{{ counts.archived }}</span>
+    </a>
+    <a class="{% if show == 'all' %}active{% endif %}" href="?show=all">
+      Barchasi <span class="badge">{{ counts.all }}</span>
+    </a>
+  </div>
+
+  <div class="panel-search">
+    <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Tort nomi yoki tavsifi">
+    <select name="category" class="form-select">
+      <option value="">Barcha kategoriyalar</option>
+      {% for cat in categories %}
+      <option value="{{ cat.pk }}" {% if category == cat.pk|stringformat:'s' %}selected{% endif %}>{{ cat.name }}</option>
+      {% endfor %}
+    </select>
+    {% if show != 'active' %}<input type="hidden" name="show" value="{{ show }}">{% endif %}
+    <button class="btn btn-brand" type="submit"><i class="bi bi-search"></i></button>
+    {% if query or category %}<a class="btn btn-outline-secondary" href="{% url 'panel:cakes' %}">Tozalash</a>{% endif %}
+  </div>
+</form>
+
+<div class="panel-card">
+  <div class="panel-card__body p-0">
+    {% if page.object_list %}
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="width:64px"></th>
+            <th>Nomi</th>
+            <th>Kategoriya</th>
+            <th class="text-end">Narx</th>
+            <th class="text-end">Og'irlik</th>
+            <th>Mavjud</th>
+            <th>Holat</th>
+            <th class="text-end">Amal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cake in page %}
+          {% with next=request.get_full_path %}
+          <tr class="{% if not cake.is_active %}opacity-50{% endif %}">
+            <td>
+              {% if cake.main_image %}
+              <img src="{{ cake.main_image.url }}" alt="" class="panel-thumb" loading="lazy">
+              {% else %}
+              <span class="panel-thumb panel-thumb--empty"><i class="bi bi-image"></i></span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'panel:cake_edit' cake.pk %}" class="fw-semibold">{{ cake.name }}</a>
+              {% if cake.is_preorder %}<span class="badge bg-warning text-dark">oldindan</span>{% endif %}
+              <div class="small text-muted">{{ cake.description|truncatechars:60 }}</div>
+            </td>
+            <td>{{ cake.category.name }}</td>
+            <td class="text-end fw-semibold">{{ cake.price|floatformat:"-2" }}</td>
+            <td class="text-end">{{ cake.weight_gram }} g</td>
+            <td>
+              <form method="post" action="{% url 'panel:cake_flag' cake.pk %}" class="m-0">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="available">
+                <input type="hidden" name="next" value="{{ next }}">
+                <button class="btn btn-sm {% if cake.is_available %}btn-outline-success{% else %}btn-outline-secondary{% endif %}"
+                  type="submit">
+                  {% if cake.is_available %}Mavjud{% else %}Mavjud emas{% endif %}
+                </button>
+              </form>
+            </td>
+            <td>
+              {% if cake.is_active %}
+              <span class="badge bg-success">Saytda</span>
+              {% else %}
+              <span class="badge bg-secondary">Arxiv</span>
+              {% endif %}
+            </td>
+            <td class="text-end text-nowrap">
+              <a class="btn btn-sm btn-outline-secondary" href="{{ cake.get_absolute_url }}" target="_blank"
+                title="Saytda ko'rish"><i class="bi bi-eye"></i></a>
+              <a class="btn btn-sm btn-brand" href="{% url 'panel:cake_edit' cake.pk %}" title="Tahrirlash">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <form method="post" action="{% url 'panel:cake_flag' cake.pk %}" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="{% if cake.is_active %}archive{% else %}restore{% endif %}">
+                <input type="hidden" name="next" value="{{ next }}">
+                <button class="btn btn-sm btn-outline-secondary" type="submit"
+                  title="{% if cake.is_active %}Arxivlash{% else %}Qaytarish{% endif %}">
+                  <i class="bi bi-archive"></i>
+                </button>
+              </form>
+              <form method="post" action="{% url 'panel:cake_delete' cake.pk %}" class="d-inline"
+                onsubmit="return confirm('«{{ cake.name|escapejs }}» butunlay o\'chirilsinmi? Buyurtmalarda ishlatilgan tort o\'chirilmaydi.')">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+                <button class="btn btn-sm btn-outline-danger" type="submit" title="Butunlay o'chirish">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted panel-empty mb-0">Tort topilmadi.
+      <a href="{% url 'panel:cake_create' %}">Birinchi tortni qo'shing</a>.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% include 'panel/_pagination.html' %}
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{% if page.paginator.num_pages > 1 %}
+<nav class="panel-pager" aria-label="Sahifalar">
+  <span class="text-muted small">Jami: {{ page.paginator.count }} ta</span>
+  <ul class="pagination pagination-sm mb-0">
+    <li class="page-item {% if not page.has_previous %}disabled{% endif %}">
+      <a class="page-link" href="?{% if query %}q={{ query|urlencode }}&amp;{% endif %}{% if status %}status={{ status }}&amp;{% endif %}page={{ page.previous_page_number|default:1 }}">Ortidan</a>
+    </li>
+    {% for num in page.paginator.page_range %}
+    {% if num == page.number %}
+    <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+    {% elif num > page.number|add:"-3" and num < page.number|add:"3" %}
+    <li class="page-item">
+      <a class="page-link" href="?{% if query %}q={{ query|urlencode }}&amp;{% endif %}{% if status %}status={{ status }}&amp;{% endif %}{% if show %}show={{ show }}&amp;{% endif %}{% if category %}category={{ category }}&amp;{% endif %}{% if vip %}vip=1&amp;{% endif %}page={{ num }}">{{ num }}</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+    <li class="page-item {% if not page.has_next %}disabled{% endif %}">
+      <a class="page-link" href="?{% if query %}q={{ query|urlencode }}&amp;{% endif %}{% if status %}status={{ status }}&amp;{% endif %}page={{ page.next_page_number|default:page.number }}">Keyingi</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}

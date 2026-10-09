@@ -1,0 +1,56 @@
+{% with rm=request.resolver_match %}
+<nav class="panel-brand">
+  <a href="{% url 'panel:dashboard' %}" class="d-flex align-items-center gap-2 text-decoration-none">
+    <span class="panel-brand__mark"><i class="bi bi-cake2-fill"></i></span>
+    <span class="panel-brand__text">
+      <strong>{{ settings_obj.site_name|default:"Semurg' TORT Markazi" }}</strong>
+      <small>Boshqaruv paneli</small>
+    </span>
+  </a>
+</nav>
+
+<ul class="panel-nav">
+  <li><a class="{% if rm.url_name == 'dashboard' %}active{% endif %}" href="{% url 'panel:dashboard' %}">
+    <i class="bi bi-speedometer2"></i> Umumiy</a></li>
+
+  <li><a class="{% if rm.url_name == 'orders' or rm.url_name == 'order_detail' %}active{% endif %}" href="{% url 'panel:orders' %}">
+    <i class="bi bi-bag-check"></i> Buyurtmalar</a></li>
+
+  <li><a class="{% if rm.namespace == 'panel' and 'cake' in rm.url_name %}active{% endif %}" href="{% url 'panel:cakes' %}">
+    <i class="bi bi-cake"></i> Tortlar</a></li>
+
+  <li><a class="{% if rm.url_name == 'catalog' %}active{% endif %}" href="{% url 'panel:catalog' %}">
+    <i class="bi bi-tags"></i> Katalog</a></li>
+
+  <li><a class="{% if rm.url_name == 'content' %}active{% endif %}" href="{% url 'panel:content' %}">
+    <i class="bi bi-images"></i> Sayt kontenti</a></li>
+
+  <li><a class="{% if rm.url_name == 'clients' or rm.url_name == 'client_detail' %}active{% endif %}" href="{% url 'panel:clients' %}">
+    <i class="bi bi-people"></i> Mijozlar</a></li>
+
+  <li><a class="{% if rm.url_name == 'messages' %}active{% endif %}" href="{% url 'panel:messages' %}">
+    <i class="bi bi-envelope"></i> Xabarlar</a></li>
+
+  <li><a class="{% if rm.url_name == 'reviews' %}active{% endif %}" href="{% url 'panel:reviews' %}">
+    <i class="bi bi-star"></i> Sharhlar</a></li>
+
+  <li><a class="{% if rm.url_name == 'settings' %}active{% endif %}" href="{% url 'panel:settings' %}">
+    <i class="bi bi-gear"></i> Sozlamalar</a></li>
+</ul>
+
+<div class="panel-menu__foot">
+  <div class="panel-user">
+    <span class="panel-user__avatar">{{ user.get_full_name|default:user.username|first|upper }}</span>
+    <span>
+      <strong>{{ user.get_full_name|default:user.username }}</strong>
+      <small>Administrator</small>
+    </span>
+  </div>
+  <form method="post" action="{% url 'panel:logout' %}" class="m-0 d-lg-none">
+    {% csrf_token %}
+    <button class="btn btn-sm btn-outline-danger w-100" type="submit">
+      <i class="bi bi-box-arrow-right"></i> Chiqish
+    </button>
+  </form>
+</div>
+{% endwith %}

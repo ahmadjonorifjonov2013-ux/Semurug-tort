@@ -1365,12 +1365,66 @@ hr { border-color: var(--line); opacity: 1; }
 }
 
 @media (max-width: 575.98px) {
+  /* Kichik ekranda `.container` 12px ichki qatlamga ega, `g-5` (3rem) esa
+     qatlamni salqinlaydi va sahifa o'ngga/solga siljishiga sabak bo'ladi.
+     Shuning uchun gutters telefonda standart 1.5rem ga tushiriladi. */
+  .row.g-5,
+  .row.g-4 { --bs-gutter-x: 1.5rem; }
+
   .cake-img { height: 190px; }
   .hero-img, .hero__media img { height: 78vh; min-height: 440px; }
   .stat-strip { grid-template-columns: 1fr 1fr; }
   .cat-grid { grid-template-columns: 1fr 1fr; }
   .fab { width: 48px; height: 48px; font-size: 1.2rem; }
   .detail-img { height: 340px; }
+}
+
+/* ---------------------------------------------------------------------------
+   Telefon: katta bosish maydonlari, iOS zoomsiz forma, xavfsiz chegaralar
+   --------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  /* iOS Safari kichik shriftli maydonga fokusda avtomatik zoom qiladi —
+     16px dan kichik bo'lmasa, zoom bo'lmaydi. */
+  .form-control,
+  .form-select,
+  .input-group .form-control { font-size: 1rem; }
+
+  /* Yopilgan menyu: har bir band to'liq qator bosish maydoni bo'lsin */
+  .site-nav .navbar-collapse .nav-link {
+    padding: .8rem .5rem;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+  }
+  .site-nav .navbar-collapse .nav-link:last-child { border-bottom: 0; }
+  .site-nav .navbar-collapse .btn { width: 100%; }
+  .site-nav .navbar-collapse ul { gap: .35rem; }
+
+  /* Savat va buyurtma kartalarida rasm kichrayib, matn joyi ochilsin */
+  .cart-img { width: 84px; height: 84px; }
+
+  /* Pastdagi suzuvchi tugmalar matn yopib qolmasligi uchun */
+  .site-footer {
+    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  .fab-group {
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    right: calc(1rem + env(safe-area-inset-right, 0px));
+  }
+  .toast-wrap {
+    bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    width: calc(100vw - 2rem);
+  }
+
+  .form-card { padding: 1.35rem 1.15rem; }
+  .section { padding-block: clamp(2.5rem, 9vw, 4rem); }
+}
+
+@media (max-width: 575.98px) {
+  /* Kichik ekranda rasmli qatorlar tor qolmasin */
+  .order-line__img { width: 52px; height: 52px; }
+  .order-summary .total-line .amount { font-size: 1.4rem; }
+  .btn-lg { --btn-pad-y: .85rem; --btn-pad-x: 1.3rem; }
 }
 
 /* ==========================================================================

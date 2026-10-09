@@ -1,0 +1,109 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}{{ client.full_name }} — boshqaruv paneli{% endblock %}
+{% block heading %}{{ client.full_name }}{% endblock %}
+{% block subheading %}
+<p class="text-muted mb-0">Ro'yxatdan o'tgan: {{ client.created_at|date:"d.m.Y" }}</p>
+{% endblock %}
+
+{% block head_actions %}
+<a class="btn btn-sm btn-outline-secondary" href="{% url 'panel:clients' %}">
+  <i class="bi bi-arrow-left"></i> Mijozlar
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="row g-3">
+  <div class="col-xl-4">
+    <div class="panel-card mb-3">
+      <div class="panel-card__head"><h2><i class="bi bi-person-badge me-1"></i> Ma'lumotlar</h2></div>
+      <div class="panel-card__body">
+        <p class="mb-2">
+          <a href="tel:{{ client.phone }}" class="panel-phone">
+            <i class="bi bi-telephone-fill"></i> {{ client.phone }}
+          </a>
+        </p>
+        {% if client.telegram %}
+        <p class="mb-2">
+          <a href="https://t.me/{{ client.telegram|cut:'@' }}" target="_blank" rel="noopener">
+            <i class="bi bi-telegram me-1"></i>{{ client.telegram }}
+          </a>
+        </p>
+        {% endif %}
+        {% if client.address %}
+        <p class="mb-0 small"><strong>Manzil:</strong> {{ client.address|linebreaksbr }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card__head"><h2><i class="bi bi-pencil-square me-1"></i> Tahrirlash</h2></div>
+      <div class="panel-card__body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% include 'includes/form_fields.html' %}
+          <button class="btn btn-brand w-100" type="submit"><i class="bi bi-check-lg me-1"></i>Saqlash</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-8">
+    <div class="panel-card mb-3">
+      <div class="panel-card__head">
+        <h2><i class="bi bi-bag-check me-1"></i> Buyurtmalari ({{ orders|length }})</h2>
+        <span class="text-muted small">Jami: {{ client.total_spent|floatformat:"-2" }} so'm</span>
+      </div>
+      <div class="panel-card__body p-0">
+        {% if orders %}
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr><th>№</th><th>Sana</th><th>Manzil</th><th class="text-end">Jami</th><th>Holat</th><th></th></tr>
+            </thead>
+            <tbody>
+              {% for order in orders %}
+              <tr>
+                <td class="fw-bold">#{{ order.pk }}</td>
+                <td class="text-nowrap">{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                <td class="small">{{ order.delivery_address|truncatechars:40 }}</td>
+                <td class="text-end fw-semibold">{{ order.total_price|floatformat:"-2" }}</td>
+                <td>{% include 'includes/order_status_badge.html' with order=order %}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-brand" href="{% url 'panel:order_detail' order.pk %}">Ochish</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted panel-empty mb-0">Buyurtma yo'q.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card__head"><h2><i class="bi bi-star me-1"></i> Sharhlari ({{ reviews|length }})</h2></div>
+      <div class="panel-card__body">
+        {% for review in reviews %}
+        <div class="panel-faq">
+          <strong>{{ review.cake.name|default:"Umumiy" }}</strong>
+          <span class="text-warning small ms-2">
+            {% for i in "12345"|make_list %}{% if forloop.counter <= review.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}{% endfor %}
+          </span>
+          <span class="badge ms-2 {% if review.is_published %}bg-success{% else %}bg-secondary{% endif %}">
+            {% if review.is_published %}chiqqan{% else %}nazoratda{% endif %}
+          </span>
+          <p class="small mb-0 text-muted">{{ review.text }}</p>
+        </div>
+        {% empty %}
+        <p class="text-muted mb-0">Sharh yo'q.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

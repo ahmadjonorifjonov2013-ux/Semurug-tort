@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -10,6 +9,9 @@ from .forms import ContactForm
 
 
 def home(request):
+    if request.user.is_authenticated and getattr(request.user, 'is_staff', False):
+        return redirect('panel:dashboard')
+
     from cakes.models import Cake, Category
 
     cakes = Cake.objects.filter(is_active=True, is_available=True).select_related('category')

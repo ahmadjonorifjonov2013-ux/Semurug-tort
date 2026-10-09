@@ -115,6 +115,27 @@ class ProfileTests(ViewTestCase):
         self.assertEqual(self.client_obj.full_name, 'Alisher')
         self.assertEqual(self.client_obj.phone, '+998907654321')
 
+    def test_profile_created_automatically_without_phone_clash(self):
+        """Client qatori yo'q akkaunt profilda 500 bermaydi.
+
+        Eski vaqtinchalik raqam (+99800000000) band bo'lsa ham, unikal
+        raqam tanlanadi va sahifa ochiladi.
+        """
+        Client.objects.create(full_name='Boshqa mijoz',
+                              phone='+99800000000')
+        user = User.objects.create_user(username='Zulayho',
+                                         password='YangiParol!2026')
+        self.client.logout()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('clients:profile'))
+        self.assertEqual(response.status_code, 200)
+
+        client = Client.objects.get(user=user)
+        self.assertNotEqual(client.phone, '+99800000000')
+        self.assertTrue(client.phone.startswith('+998'))
+        self.assertEqual(len(client.phone), 13)
+
 
 class ClientModelTests(TestCase):
     def test_str(self):

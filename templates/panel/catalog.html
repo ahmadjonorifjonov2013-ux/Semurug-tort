@@ -1,0 +1,195 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Katalog — boshqaruv paneli{% endblock %}
+{% block heading %}Katalog{% endblock %}
+{% block subheading %}
+<p class="text-muted mb-0">Kategoriyalar, variantlar, allergenlar va promo kodlar.</p>
+{% endblock %}
+
+{% block content %}
+
+<div class="row g-3">
+  <div class="col-xl-6">
+    <div class="panel-card">
+      <div class="panel-card__head"><h2><i class="bi bi-folder me-1"></i> Kategoriyalar</h2></div>
+      <div class="panel-card__body">
+        <div class="table-responsive">
+          <table class="table align-middle mb-2">
+            <thead><tr><th>Nomi</th><th>Tortlar</th><th>Faol</th><th class="text-end"></th></tr></thead>
+            <tbody>
+              {% for cat in categories %}
+              <tr>
+                <td>{{ cat.name }}</td>
+                <td>{{ cat.total_cakes }}</td>
+                <td>
+                  {% if cat.is_active %}<span class="badge bg-success">Faol</span>
+                  {% else %}<span class="badge bg-secondary">Yashirin</span>{% endif %}
+                </td>
+                <td class="text-end">
+                  <form method="post" action="{% url 'panel:category_delete' cat.pk %}" class="d-inline"
+                    onsubmit="return confirm('«{{ cat.name|escapejs }}» kategoriyasi o\'chirilsinmi?')">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" class="text-muted">Kategoriya yo'q.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <form method="post" action="{% url 'panel:category_save' %}" enctype="multipart/form-data"
+          class="panel-form">
+          {% csrf_token %}
+          <h3 class="panel-subhead">Yangi kategoriya</h3>
+          <div class="row g-2">
+            <div class="col-md-6">{{ category_form.name }}</div>
+            <div class="col-md-6">{{ category_form.image }}</div>
+            <div class="col-12">{{ category_form.description }}</div>
+            <div class="col-md-4">{{ category_form.order }}</div>
+            <div class="col-md-8 d-flex align-items-end">
+              <div class="form-check">
+                {{ category_form.is_active }}
+                <label class="form-check-label" for="{{ category_form.is_active.id_for_label }}">{{ category_form.is_active.label }}</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <button class="btn btn-brand btn-sm" type="submit"><i class="bi bi-plus-lg me-1"></i>Qo'shish</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-6">
+    <div class="panel-card mb-3">
+      <div class="panel-card__head"><h2><i class="bi bi-sliders me-1"></i> Variantlar (o'lcham, ta'm)</h2></div>
+      <div class="panel-card__body">
+        <div class="table-responsive">
+          <table class="table align-middle mb-2">
+            <thead><tr><th>Nomi</th><th>Guruh</th><th class="text-end">Qo'shimcha</th><th>Faol</th><th class="text-end"></th></tr></thead>
+            <tbody>
+              {% for option in options %}
+              <tr>
+                <td>{{ option.name }}</td>
+                <td>{{ option.group }}</td>
+                <td class="text-end">{{ option.price_delta|floatformat:"-2" }}</td>
+                <td>{% if option.is_active %}<i class="bi bi-check-circle text-success"></i>
+                    {% else %}<i class="bi bi-x-circle text-muted"></i>{% endif %}</td>
+                <td class="text-end">
+                  <form method="post" action="{% url 'panel:option_delete' option.pk %}" class="d-inline"
+                    onsubmit="return confirm('«{{ option.name|escapejs }}» varianti o\'chirilsinmi?')">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="text-muted">Variant yo'q.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <form method="post" action="{% url 'panel:option_save' %}" class="panel-form">
+          {% csrf_token %}
+          <h3 class="panel-subhead">Yangi variant</h3>
+          <div class="row g-2">
+            <div class="col-md-5">{{ option_form.name }}</div>
+            <div class="col-md-4">{{ option_form.group }}</div>
+            <div class="col-md-3">{{ option_form.price_delta }}</div>
+            <div class="col-12 d-flex align-items-center gap-3">
+              <div class="form-check">
+                {{ option_form.is_active }}
+                <label class="form-check-label" for="{{ option_form.is_active.id_for_label }}">{{ option_form.is_active.label }}</label>
+              </div>
+              <button class="btn btn-brand btn-sm" type="submit"><i class="bi bi-plus-lg me-1"></i>Qo'shish</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="panel-card mb-3">
+      <div class="panel-card__head"><h2><i class="bi bi-exclamation-triangle me-1"></i> Allergenlar</h2></div>
+      <div class="panel-card__body">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          {% for allergen in allergens %}
+          <span class="panel-chip">
+            {{ allergen.name }}
+            <form method="post" action="{% url 'panel:allergen_delete' allergen.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button class="btn-close btn-close-white ms-1" type="submit" aria-label="O'chirish"></button>
+            </form>
+          </span>
+          {% empty %}
+          <span class="text-muted">Allergen qo'shilgan.</span>
+          {% endfor %}
+        </div>
+        <form method="post" action="{% url 'panel:allergen_save' %}" class="row g-2">
+          {% csrf_token %}
+          <div class="col-md-8">{{ allergen_form.name }}</div>
+          <div class="col-md-4">
+            <button class="btn btn-brand btn-sm w-100" type="submit"><i class="bi bi-plus-lg me-1"></i>Qo'shish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card__head"><h2><i class="bi bi-percent me-1"></i> Promo kodlar</h2></div>
+      <div class="panel-card__body">
+        <div class="table-responsive">
+          <table class="table align-middle mb-2">
+            <thead><tr><th>Kod</th><th>%</th><th>Min. summa</th><th>Ishlatilgan</th><th>Faol</th><th class="text-end"></th></tr></thead>
+            <tbody>
+              {% for promo in promo_codes %}
+              <tr>
+                <td class="fw-semibold">{{ promo.code }}</td>
+                <td>{{ promo.discount_percent }}%</td>
+                <td>{{ promo.min_order_sum|floatformat:"-2" }}</td>
+                <td>{{ promo.used_count }}</td>
+                <td>{% if promo.is_active %}<i class="bi bi-check-circle text-success"></i>
+                    {% else %}<i class="bi bi-x-circle text-muted"></i>{% endif %}</td>
+                <td class="text-end">
+                  <form method="post" action="{% url 'panel:promo_delete' promo.pk %}" class="d-inline"
+                    onsubmit="return confirm('«{{ promo.code|escapejs }}» o\'chirilsinmi?')">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="6" class="text-muted">Promo kod yo'q.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <form method="post" action="{% url 'panel:promo_save' %}" class="panel-form">
+          {% csrf_token %}
+          <h3 class="panel-subhead">Yangi promo kod</h3>
+          <div class="row g-2">
+            <div class="col-md-4">{{ promo_form.code }}</div>
+            <div class="col-md-4">{{ promo_form.discount_percent }}</div>
+            <div class="col-md-4">{{ promo_form.min_order_sum }}</div>
+            <div class="col-md-6">{{ promo_form.valid_from }}</div>
+            <div class="col-md-6">{{ promo_form.valid_until }}</div>
+            <div class="col-12 d-flex align-items-center gap-3">
+              <div class="form-check">
+                {{ promo_form.is_active }}
+                <label class="form-check-label" for="{{ promo_form.is_active.id_for_label }}">{{ promo_form.is_active.label }}</label>
+              </div>
+              <button class="btn btn-brand btn-sm" type="submit"><i class="bi bi-plus-lg me-1"></i>Qo'shish</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

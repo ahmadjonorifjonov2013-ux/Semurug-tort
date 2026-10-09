@@ -100,10 +100,19 @@ STUB_TEMPLATES = [{
 
 
 class ModelTestCase(TestCase):
-    """main_image ni avtomatik to'ldiradigan asos."""
+    """main_image ni avtomatik to'ldiradigan asos.
+
+    Saytga kirish talabi (`SITE_REQUIRE_LOGIN`) o'chiriladi — model/view
+    testlari autentifikatsiyani tekshirmaydi. Kirish talabi alohida
+    testlarda `panel/tests.py` da `override_settings` bilan tekshiriladi.
+    """
 
     def setUp(self):
         from cakes.models import Category
+
+        open_site = override_settings(SITE_REQUIRE_LOGIN=False)
+        open_site.enable()
+        self.addCleanup(open_site.disable)
 
         # Testlar haqiqiy media/ papkasiga yozmasligi uchun vaqtinchalik
         # papka (aks holda media/cakes/ga tort_*.png qoldig'i to'planadi).
@@ -129,6 +138,44 @@ class ModelTestCase(TestCase):
         return Cake.objects.create(**defaults)
 
 
+class SiteLoginRequiredTestCase(ModelTestCase):
+    """ModelTestCase + saytga kirish talabi yoqiq (`SITE_REQUIRE_LOGIN=True`).
+
+    ModelTestCase saytni ochiq qilib qo'yadi; bu test sinfi talabni
+    qayta yoqadi.
+    """
+
+    def setUp(self):
+        super().setUp()
+        require_login = override_settings(SITE_REQUIRE_LOGIN=True)
+        require_login.enable()
+        self.addCleanup(require_login.disable)
+
+
 @override_settings(TEMPLATES=STUB_TEMPLATES)
 class ViewTestCase(ModelTestCase):
     """ModelTestCase + shablonlarsiz view testlari."""
+
+    def login_user(self, username='ali', password='YangiParol!2026',
+                   **kwargs):
+        """Tizimga kiritilgan oddiy mijoz (staff emas)."""
+        from django.contrib.auth import get_user_model
+
+        user = get_user_model().objects.create_user(
+            username=username, password=password, **kwargs)
+        self.client.force_login(user)
+        return user
+
+    def login_staff(self, username='admin', password='YangiParol!2026',
+                    **kwargs):
+        """Panelga kira oladigan xodim + panel sessiyasi belgisi."""
+        from django.contrib.auth import get_user_model
+
+        user = get_user_model().objects.create_superuser(
+            username=username, password=password, email='admin@example.com',
+            **kwargs)
+        self.client.force_login(user)
+        session = self.client.session
+        session['panel_admin_id'] = user.pk
+        session.save()
+        return user

@@ -1,0 +1,219 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Buyurtma #{{ order.pk }} — boshqaruv paneli{% endblock %}
+{% block heading %}Buyurtma #{{ order.pk }}{% endblock %}
+{% block subheading %}
+<p class="text-muted mb-0">{{ order.created_at|date:"d.m.Y H:i" }} — {% include 'includes/order_status_badge.html' with order=order %}</p>
+{% endblock %}
+
+{% block head_actions %}
+<a class="btn btn-sm btn-outline-secondary" href="{% url 'panel:orders' %}">
+  <i class="bi bi-arrow-left"></i> Ro'yxat
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="row g-3">
+  <div class="col-xl-8">
+
+    <div class="panel-card mb-3">
+      <div class="panel-card__head">
+        <h2><i class="bi bi-box-seam me-1"></i> Tarkibi</h2>
+        <span class="text-muted small">{{ order.items.count }} xil, {{ order.items_count }} dona</span>
+      </div>
+      <div class="panel-card__body p-0">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Tort</th>
+                <th>Variantlar</th>
+                <th>Izoh</th>
+                <th class="text-end">Soni</th>
+                <th class="text-end">Narx</th>
+                <th class="text-end">Summa</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in order.items.all %}
+              <tr>
+                <td>
+                  <a href="{{ item.cake.get_absolute_url }}" target="_blank">{{ item.cake.name }}</a>
+                </td>
+                <td class="small">{{ item.options_names|default:"—" }}</td>
+                <td class="small text-muted">{{ item.comment|default:"—" }}</td>
+                <td class="text-end">{{ item.quantity }}</td>
+                <td class="text-end">{{ item.price|floatformat:"-2" }}</td>
+                <td class="text-end fw-semibold">{{ item.subtotal|floatformat:"-2" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr><td colspan="5" class="text-end">Tovar summasi</td>
+                <td class="text-end">{{ order.subtotal|floatformat:"-2" }}</td></tr>
+              <tr><td colspan="5" class="text-end">Yetkazib berish</td>
+                <td class="text-end">{{ order.delivery_price|floatformat:"-2" }}</td></tr>
+              {% if order.discount %}
+              <tr><td colspan="5" class="text-end">Chegirma ({{ order.promo_code.code }})</td>
+                <td class="text-end text-danger">-{{ order.discount|floatformat:"-2" }}</td></tr>
+              {% endif %}
+              <tr class="fw-bold"><td colspan="5" class="text-end">JAMI</td>
+                <td class="text-end">{{ order.total_price|floatformat:"-2" }} so'm</td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card__head">
+        <h2><i class="bi bi-pencil-square me-1"></i> Buyurtmani rasmiylash</h2>
+      </div>
+      <div class="panel-card__body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.status.id_for_label }}">
+                {{ form.status.label }}
+              </label>
+              {{ form.status }}
+              {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.payment_method.id_for_label }}">
+                {{ form.payment_method.label }}
+              </label>
+              {{ form.payment_method }}
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <div class="form-check">
+                {{ form.is_paid }}
+                <label class="form-check-label" for="{{ form.is_paid.id_for_label }}">
+                  {{ form.is_paid.label }}
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.delivery_date.id_for_label }}">
+                {{ form.delivery_date.label }}
+              </label>
+              {{ form.delivery_date }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.delivery_time.id_for_label }}">
+                {{ form.delivery_time.label }}
+              </label>
+              {{ form.delivery_time }}
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="{{ form.delivery_address.id_for_label }}">
+                {{ form.delivery_address.label }}
+              </label>
+              {{ form.delivery_address }}
+              {% for error in form.delivery_address.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="{{ form.comment.id_for_label }}">
+                {{ form.comment.label }}
+              </label>
+              {{ form.comment }}
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button class="btn btn-brand" type="submit"><i class="bi bi-check-lg me-1"></i> Saqlash</button>
+          </div>
+        </form>
+
+        <div class="panel-actions">
+          <form method="post" action="{% url 'panel:order_action' order.pk %}" class="m-0">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="paid">
+            <button class="btn btn-sm {% if order.is_paid %}btn-outline-success{% else %}btn-success{% endif %}" type="submit">
+              <i class="bi bi-cash-coin me-1"></i>
+              {% if order.is_paid %}To'landi deb belgilash{% else %}To'lov oldim deb belgilash{% endif %}
+            </button>
+          </form>
+          <form method="post" action="{% url 'panel:order_action' order.pk %}" class="m-0">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="confirm_phone">
+            <button class="btn btn-sm btn-outline-primary" type="submit">
+              <i class="bi bi-telephone-check me-1"></i> Telefon tasdiqlandi
+            </button>
+          </form>
+          <form method="post" action="{% url 'panel:order_action' order.pk %}" class="m-0">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="recalc">
+            <button class="btn btn-sm btn-outline-secondary" type="submit">
+              <i class="bi bi-calculator me-1"></i> Summani qayta hisoblash
+            </button>
+          </form>
+          <form method="post" action="{% url 'panel:order_action' order.pk %}" class="m-0">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="notify">
+            <button class="btn btn-sm btn-outline-secondary" type="submit">
+              <i class="bi bi-send me-1"></i> Telegram'ga yuborish
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    <div class="panel-card mb-3">
+      <div class="panel-card__head">
+        <h2><i class="bi bi-person-badge me-1"></i> Mijoz</h2>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'panel:client_detail' order.client.pk %}">
+          Kartasi
+        </a>
+      </div>
+      <div class="panel-card__body">
+        <p class="fw-semibold mb-1">{{ order.client.full_name }}
+          {% if order.client.is_vip %}<span class="badge bg-warning text-dark">VIP</span>{% endif %}
+        </p>
+        <p class="mb-2">
+          <a href="tel:{{ order.client.phone }}" class="panel-phone">
+            <i class="bi bi-telephone-fill"></i> {{ order.client.phone }}
+          </a>
+        </p>
+        {% if order.client.telegram %}
+        <p class="mb-2">
+          <a href="https://t.me/{{ order.client.telegram|cut:'@' }}" target="_blank" rel="noopener">
+            <i class="bi bi-telegram me-1"></i>{{ order.client.telegram }}
+          </a>
+        </p>
+        {% endif %}
+        <ul class="list-unstyled mb-0 small">
+          <li class="mb-1"><strong>Manzil:</strong> {{ order.delivery_address|linebreaksbr }}</li>
+          <li class="mb-1"><strong>To'lov usuli:</strong> {{ order.get_payment_method_display }}</li>
+          <li><strong>Ro'yxatdan:</strong> {{ order.client.created_at|date:"d.m.Y" }}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card__head">
+        <h2><i class="bi bi-clock-history me-1"></i> Holat tarixi</h2>
+      </div>
+      <div class="panel-card__body">
+        <ul class="panel-timeline">
+          {% for step in order.timeline %}
+          <li class="panel-timeline__item panel-timeline__item--{{ step.state }}">
+            <span class="panel-timeline__dot"></span>
+            {{ step.label }}
+          </li>
+          {% endfor %}
+        </ul>
+        {% if order.comment %}
+        <div class="panel-note">
+          <strong>Izoh:</strong><br>{{ order.comment|linebreaksbr }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

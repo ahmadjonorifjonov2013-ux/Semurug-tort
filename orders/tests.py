@@ -1,13 +1,14 @@
 from decimal import Decimal
 
 from django.urls import reverse
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from testutils import ModelTestCase, ViewTestCase
 from clients.models import Client
 from core.models import SiteSettings
 
 from .models import Order, OrderItem, PromoCode
+from .services import _admin_link, _keyboard
 
 
 class OrderTotalTests(ModelTestCase):
@@ -264,3 +265,41 @@ class RegisterAndOrderTests(ViewTestCase):
         self.register()
 
         self.assertEqual(self.client.session['cart'], expected)
+
+class TelegramLinkTests(ModelTestCase):
+    """Telegram tugmasi aynan shu saytning buyurtma sahifasini ochishi kerak."""
+
+    def test_link_has_slash_between_site_and_panel(self):
+        for site_url in ('https://tort.uz', 'http://10.0.0.5:8800',
+                         'https://tort.uz/'):
+            with self.subTest(site_url=site_url):
+                with override_settings(SITE_URL=site_url):
+                    self.assertEqual(
+                        _admin_link(7),
+                        f"{site_url.rstrip('/')}/boshqaruv/buyurtmalar/7/")
+
+    def test_link_is_a_real_url(self):
+        with override_settings(SITE_URL='http://10.0.0.5:8800'):
+            link = _admin_link(7)
+        self.assertTrue(link.startswith('http://10.0.0.5:8800/'))
+        self.assertNotIn('8800boshqaruv', link)
+
+    def test_no_link_for_local_addresses(self):
+        for site_url in ('', 'http://127.0.0.1:8800', 'http://localhost:8000'):
+            with self.subTest(site_url=site_url):
+                with override_settings(SITE_URL=site_url):
+                    self.assertIsNone(_admin_link(7))
+
+    def test_keyboard_uses_link(self):
+        with override_settings(SITE_URL='https://tort.uz'):
+            keyboard = _keyboard(7)
+        self.assertEqual(
+            keyboard['inline_keyboard'][0][0],
+            {'text': "🛒 Buyurtmani ochish",
+             'url': 'https://tort.uz/boshqaruv/buyurtmalar/7/'})
+
+    def test_panel_prefix_is_respected(self):
+        with override_settings(SITE_URL='https://tort.uz',
+                               PANEL_URL_PREFIX='/admin-panel/'):
+            self.assertEqual(_admin_link(3),
+                             'https://tort.uz/admin-panel/buyurtmalar/3/')
