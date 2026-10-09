@@ -90,7 +90,7 @@ class AuthTests(ViewTestCase):
     def test_profile_requires_login(self):
         response = self.client.get(reverse('clients:profile'))
         self.assertEqual(response.status_code, 302)
-        self.assertIn('/clients/login/', response.url)
+        self.assertIn('/login/', response.url)
 
 
 class ProfileTests(ViewTestCase):

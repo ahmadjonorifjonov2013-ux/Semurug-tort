@@ -17,7 +17,8 @@ services:
     buildCommand: >-
       pip install -r requirements.txt &&
       python manage.py migrate --noinput &&
-      python manage.py collectstatic --noinput
+      python manage.py collectstatic --noinput &&
+      (python manage.py create_admin || echo "create_admin o'tkazib yuborildi: ADMIN_USERNAME/ADMIN_PASSWORD yo'q")
     # O'zgaruvchilarni Render'da qo'lda kiritish (sync: false)
     envVars:
       - key: DJANGO_SECRET_KEY
@@ -33,6 +34,15 @@ services:
         sync: false
       - key: MEDIA_VIA_DJANGO
         value: "True"
+      # Sayt hamma uchun ochiq bo'lsin (login talab qilinmasin).
+      - key: SITE_REQUIRE_LOGIN
+        value: "False"
+      # Boshqaruv paneli/admin akkaunti. Parolni Render dashboard'da
+      # (Environment bo'limida) o'zingiz kiratasiz — repoga yozilmaydi.
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
       - key: DJANGO_LOG_LEVEL
         value: "INFO"
       - key: TELEGRAM_BOT_TOKEN

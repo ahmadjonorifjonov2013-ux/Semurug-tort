@@ -70,7 +70,7 @@ ROBOTS_RULES = (
     'Disallow: /admin/',
     'Disallow: /api/',
     'Disallow: /api-auth/',
-    'Disallow: /clients/',
+    'Disallow: /profile/',
     'Disallow: /orders/',
     'Disallow: /reviews/add/',
 )

@@ -48,7 +48,7 @@ urlpatterns = [
 
     # Sayt
     path('', include('core.urls')),
-    path('clients/', include('clients.urls')),
+    path('', include('clients.urls')),
     path('cakes/', include('cakes.urls')),
     path('orders/', include('orders.urls')),
     path('reviews/', include('reviews.urls')),
