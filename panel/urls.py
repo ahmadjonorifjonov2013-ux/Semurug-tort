@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('kirish/', views.panel_login, name='login'),
     path('chiqish/', views.panel_logout, name='logout'),
+    path('parol/', views.panel_password_change, name='password_change'),
 
     # Buyurtmalar
     path('buyurtmalar/', views.order_list, name='orders'),

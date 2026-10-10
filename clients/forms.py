@@ -1,5 +1,6 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import (AuthenticationForm, PasswordChangeForm,
+                                       UserCreationForm)
 from django.contrib.auth.models import User
 
 from core.forms import BootstrapFormMixin
@@ -61,3 +62,13 @@ class ClientLoginForm(BootstrapFormMixin, AuthenticationForm):
         'invalid_login': "Login yoki parol xato",
         'inactive': "Bu akkaunt bloklangan",
     }
+
+
+class ChangePasswordForm(BootstrapFormMixin, PasswordChangeForm):
+    """Parolni o'zgartirish (eski parolni so'raydi)."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['old_password'].label = "Eski parol"
+        self.fields['new_password1'].label = "Yangi parol"
+        self.fields['new_password2'].label = "Yangi parol (takror)"

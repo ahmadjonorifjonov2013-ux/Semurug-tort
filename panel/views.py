@@ -11,7 +11,7 @@ Kirish alohida: `panel:login` — faqat `is_staff` akkauntlar uchun.
 """
 
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
 from django.core.paginator import Paginator
@@ -21,6 +21,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from cakes.models import Allergen, Cake, CakeImage, Category, Option
+from clients.forms import ChangePasswordForm
 from clients.models import Client
 from core.models import Banner, ContactMessage, FAQ, GalleryPhoto, SiteSettings
 from core.ratelimit import rate_limit, reset_rate_limit
@@ -79,6 +80,18 @@ def panel_logout(request):
     logout(request)
     messages.info(request, "Chiqdingiz")
     return redirect('clients:login')
+
+
+@panel_required
+def panel_password_change(request):
+    """Administrator o'z parolini o'zgartiradi (eski parolni kiritib)."""
+    form = ChangePasswordForm(request.user, request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        update_session_auth_hash(request, request.user)
+        messages.success(request, "Parol o'zgartirildi")
+        return redirect('panel:settings')
+    return render(request, 'panel/password_change.html', {'form': form})
 
 
 # ---------------------------------------------------------------------------

@@ -36,6 +36,9 @@
 
   <li><a class="{% if rm.url_name == 'settings' %}active{% endif %}" href="{% url 'panel:settings' %}">
     <i class="bi bi-gear"></i> Sozlamalar</a></li>
+
+  <li><a class="{% if rm.url_name == 'password_change' %}active{% endif %}" href="{% url 'panel:password_change' %}">
+    <i class="bi bi-shield-lock"></i> Parolni o'zgartirish</a></li>
 </ul>
 
 <div class="panel-menu__foot">

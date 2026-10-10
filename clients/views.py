@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
@@ -7,8 +7,8 @@ from core.ratelimit import rate_limit, reset_rate_limit
 from panel.decorators import SESSION_KEY
 
 from .models import Client
-from .forms import (ClientRegistrationForm, ClientLoginForm,
-                    ClientProfileForm, clean_phone_value)
+from .forms import (ChangePasswordForm, ClientRegistrationForm,
+                    ClientLoginForm, ClientProfileForm, clean_phone_value)
 
 
 def _free_phone(user):
@@ -100,6 +100,18 @@ def client_login(request):
 
 
 @login_required
+def password_change(request):
+    """Foydalanuvchi o'zi parolini o'zgartiradi (eski parolni kiritib)."""
+    form = ChangePasswordForm(request.user, request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        update_session_auth_hash(request, form.user)
+        messages.success(request, "Parol o'zgartirildi")
+        return redirect('clients:profile')
+    return render(request, 'clients/password_change.html', {'form': form})
+
+
+@login_required
 def client_logout(request):
     logout(request)
     messages.info(request, "Siz chiqdingiz")
@@ -147,6 +159,6 @@ def client_detail(request, pk):
 
 
 __all__ = [
-    'register', 'client_login', 'client_logout', 'profile',
-    'profile_orders', 'client_detail', 'clean_phone_value',
+    'register', 'client_login', 'client_logout', 'password_change',
+    'profile', 'profile_orders', 'client_detail', 'clean_phone_value',
 ]
